@@ -14,17 +14,18 @@ from connectorBehavior import *
 
 class Mesh_Refinement_Pre_Processing:
 
-    component_height=0.9
+    component_height=10
     layer_thickness=0.06
-    number_of_refinements=5
+    number_of_refinements=6
+    component_geometry_name = 'Comp_geometry_my_rectangle_true_height.sat'
 
     def __init__(self):
-        self.current_height = 0.06*15
+        self.current_height = 5
 
     def import_initial_geometry(self):
         # Import geometry file of component as a part named comp:
         mdb.openAcis(
-            'D:/mkb21147/Abaqus/Macro_Models/Process_Structure_FEA_SLM_w_refinement/first_tries/Comp_Geometry.sat'
+            './'+ self.component_geometry_name
             , scaleFromFile=OFF)
         mdb.models['main'].PartFromGeometryFile(combine=False, dimensionality=THREE_D, geometryFile=mdb.acis, name='Comp', type=DEFORMABLE_BODY)
 
@@ -40,7 +41,7 @@ class Mesh_Refinement_Pre_Processing:
                 self.slices_array[n].height_bot=self.slices_array[n].height_top-self.layer_thickness
                 self.slices_array[n].mesh_refinement = self.layer_thickness
             
-            elif n == 1:
+            elif n == 1: # next two layers, we still want high resolution
                 # check if current layer build height has been reached
                 max_possible_slice_thickness = self.layer_thickness * 2
                 current_possible_slice_thickness = max_possible_slice_thickness
@@ -53,7 +54,7 @@ class Mesh_Refinement_Pre_Processing:
                 self.slices_array[n].height_bot = self.slices_array[n].height_top-current_possible_slice_thickness
                 self.slices_array[n].mesh_refinement = self.layer_thickness #We keep the same mesh refinement as top layers
 
-            else:
+            elif n < self.number_of_refinements-1: #the resolution keeps increasing accordingly
                 # check if current layer build height has been reached
                 max_possible_slice_thickness = self.layer_thickness * 2**(n-1)
                 current_possible_slice_thickness = max_possible_slice_thickness
@@ -65,6 +66,15 @@ class Mesh_Refinement_Pre_Processing:
                 self.slices_array[n].height_top = self.slices_array[n-1].height_bot
                 self.slices_array[n].height_bot = self.slices_array[n].height_top-current_possible_slice_thickness
                 self.slices_array[n].mesh_refinement = self.layer_thickness * 2**(n-1)
+
+            elif n == self.number_of_refinements-1: #if we have reached max resolution, we will use this until the bottom of the current height
+                current_possible_slice_thickness = self.current_height - (self.current_height - self.slices_array[n-1].height_bot) #since we have reached the last refinement, now the maximum thickness is the rest of the current height left
+     
+                self.slices_array[n].height_top = self.slices_array[n-1].height_bot
+                self.slices_array[n].height_bot = self.slices_array[n].height_top-current_possible_slice_thickness
+                self.slices_array[n].mesh_refinement = self.layer_thickness * 2**(n-1)
+
+                print(n)
 
 
 
@@ -82,6 +92,8 @@ class Mesh_Refinement_Pre_Processing:
 
 
 class Slice:
+    offset_datum_of_plane=15
+
     def __init__(self):
         self.height_top = 0.01
         self.height_bot = 0
@@ -91,25 +103,29 @@ class Slice:
 
 
     def Create_Slice_Instance(self,name): #Creates a slice on part named component using the top and bottom heights of the slice object and assigns name "name"
+        
+        DatumP_XZ = mdb.models['main'].parts['Comp'].DatumPlaneByPrincipalPlane(offset=self.offset_datum_of_plane, principalPlane=XZPLANE)
+        DatumAxisZ = mdb.models['main'].parts['Comp'].DatumAxisByPrincipalAxis(principalAxis=ZAXIS)
+
         mdb.models['main'].ConstrainedSketch(gridSpacing=0.05, name='__profile__', 
             sheetSize=2.16, transform=
-            mdb.models['main'].parts['Comp'].MakeSketchTransform(
-            sketchPlane=mdb.models['main'].parts['Comp'].faces[1], 
-            sketchPlaneSide=SIDE1, 
-            sketchUpEdge=mdb.models['main'].parts['Comp'].edges[1], 
-            sketchOrientation=RIGHT, origin=(0.0, 0.12, 0.0)))
+        mdb.models['main'].parts['Comp'].MakeSketchTransform(
+        sketchPlane=mdb.models['main'].parts['Comp'].datums[2], 
+        sketchPlaneSide=SIDE1, 
+        sketchUpEdge=mdb.models['main'].parts['Comp'].datums[3], 
+        sketchOrientation=RIGHT, origin=(0.0, self.offset_datum_of_plane, 0.0)))
         mdb.models['main'].parts['Comp'].projectReferencesOntoSketch(filter=
             COPLANAR_EDGES, sketch=mdb.models['main'].sketches['__profile__'])
 
-        mdb.models['main'].sketches['__profile__'].rectangle(point1=(-100.0, -100.0),  #bottom rectangle
-            point2=(100.0, self.height_bot))
+        mdb.models['main'].sketches['__profile__'].rectangle(point1=(-1000000.0, -1000000.0),  #bottom rectangle
+            point2=(1000000.0, self.height_bot))
         mdb.models['main'].sketches['__profile__'].rectangle(point1=(-100.0, self.height_top),   #top rectangle
-            point2=(100.0, 100.0))
+            point2=(1000000.0,1000000.0))
 
         mdb.models['main'].parts['Comp'].CutExtrude(flipExtrudeDirection=OFF, sketch=
             mdb.models['main'].sketches['__profile__'], sketchOrientation=RIGHT, 
-            sketchPlane=mdb.models['main'].parts['Comp'].faces[1], sketchPlaneSide=
-            SIDE1, sketchUpEdge=mdb.models['main'].parts['Comp'].edges[1])
+            sketchPlane=mdb.models['main'].parts['Comp'].datums[2], sketchPlaneSide=
+            SIDE1, sketchUpEdge=mdb.models['main'].parts['Comp'].datums[3])
         del mdb.models['main'].sketches['__profile__']
         mdb.models['main'].parts.changeKey(fromName='Comp', toName='Slice-'+name)
 
