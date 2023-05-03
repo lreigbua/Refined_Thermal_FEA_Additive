@@ -14,13 +14,15 @@ from connectorBehavior import *
 
 class Mesh_Refinement_Pre_Processing:
 
-    component_height=10
-    layer_thickness=0.06
+    component_height=0.9
+    layer_thickness=0.12
     number_of_refinements=6
-    component_geometry_name = 'Comp_geometry_my_rectangle_true_height.sat'
+    component_geometry_name = 'Comp_geometry.sat'
+    material_names_list = ['NO_TRANS_TI6AL4V','ABQ_PHASE_TRANS_TI6AL4V']
+    offset_datum_of_plane = 1
 
     def __init__(self):
-        self.current_height = 5
+        self.current_height = 0.9
 
     def import_initial_geometry(self):
         # Import geometry file of component as a part named comp:
@@ -74,35 +76,50 @@ class Mesh_Refinement_Pre_Processing:
                 self.slices_array[n].height_bot = self.slices_array[n].height_top-current_possible_slice_thickness
                 self.slices_array[n].mesh_refinement = self.layer_thickness * 2**(n-1)
 
-                print(n)
-
 
 
 
         
 
     def generate_slices_instances(self): #Creates the instances of the different slices using Slices array
+        #Create Materials and sections:
+        for material_name in self.material_names_list:
+            mdb.models['main'].Material(name=material_name)
+            mdb.models['main'].HomogeneousSolidSection(material=material_name, name=
+                'Section-'+material_name, thickness=None)
+            
+        
         i=0
         for slice in self.slices_array:
-
             self.import_initial_geometry() #Imports geometry from CAD file
             i=i+1
             if slice.height_top  > self.layer_thickness/2:  #This if is to avoid cutting empty slice objects
-                slice.Create_Slice_Instance(str(i)) #Cuts the given slice out from the CAD file
+                slice.ID = str(i)
+                slice.Create_Slice_Instance() #Cuts the given slice out from the CAD file
+                slice.assign_section()
+
+    def generate_tie_constraits(self):
+        for slice in self.slices_array:
+
+            if slice != self.slices_array(-1): #if we are not in the bottom slice
+                a=1 #tie bot surface top surface of next slice
 
 
 class Slice:
-    offset_datum_of_plane=15
+    
 
     def __init__(self):
         self.height_top = 0.01
         self.height_bot = 0
         self.mesh_refinement = 0.06
+        self.offset_datum_of_plane=Mesh_Refinement_Pre_Processing.offset_datum_of_plane
+        self.material_name = Mesh_Refinement_Pre_Processing.material_names_list[0]
+        self.ID = 'x'
 
         assert self.height_top > self.height_bot, "height_top should be higher than height_bot'"
 
 
-    def Create_Slice_Instance(self,name): #Creates a slice on part named component using the top and bottom heights of the slice object and assigns name "name"
+    def Create_Slice_Instance(self): #Creates a slice on part named component using the top and bottom heights of the slice object and assigns name "name"
         
         DatumP_XZ = mdb.models['main'].parts['Comp'].DatumPlaneByPrincipalPlane(offset=self.offset_datum_of_plane, principalPlane=XZPLANE)
         DatumAxisZ = mdb.models['main'].parts['Comp'].DatumAxisByPrincipalAxis(principalAxis=ZAXIS)
@@ -127,22 +144,39 @@ class Slice:
             sketchPlane=mdb.models['main'].parts['Comp'].datums[2], sketchPlaneSide=
             SIDE1, sketchUpEdge=mdb.models['main'].parts['Comp'].datums[3])
         del mdb.models['main'].sketches['__profile__']
-        mdb.models['main'].parts.changeKey(fromName='Comp', toName='Slice-'+name)
-
+        mdb.models['main'].parts.changeKey(fromName='Comp', toName='Slice-'+self.ID)
 
         #Mesh part
-        mdb.models['main'].parts['Slice-'+name].seedPart(deviationFactor=0.1, 
+        mdb.models['main'].parts['Slice-'+self.ID].seedPart(deviationFactor=0.1, 
         minSizeFactor=0.1, size=self.mesh_refinement)
-        mdb.models['main'].parts['Slice-'+name].generateMesh()
+        mdb.models['main'].parts['Slice-'+self.ID].generateMesh()
+
+
+        #Change mesh to thermal elements
+        mdb.models['main'].parts['Slice-'+self.ID].setElementType(elemTypes=(
+            ElemType(elemCode=DC3D8, elemLibrary=STANDARD), ElemType(elemCode=DC3D6, 
+            elemLibrary=STANDARD), ElemType(elemCode=DC3D4, elemLibrary=STANDARD)), 
+            regions=(
+            mdb.models['main'].parts['Slice-'+self.ID].cells, ))
+
+        #Create part element set-1 with the all elements of the part
+        mdb.models['main'].parts['Slice-'+self.ID].Set(elements=mdb.models['main'].parts['Slice-'+self.ID].elements, name='Set-1')
+
 
         #Add part to Assembly
-        mdb.models['main'].rootAssembly.Instance(dependent=ON, name='Slice-'+name+'-1', part=
-            mdb.models['main'].parts['Slice-'+name])
+        mdb.models['main'].rootAssembly.Instance(dependent=ON, name='Slice-'+self.ID+'-1', part=
+            mdb.models['main'].parts['Slice-'+self.ID])
 
-        print("slice "+ name +  " created with top_height=" + str(self.height_top) + " and bot_height=" + str(self.height_bot) + ". Mesh refinement = " + str(self.mesh_refinement))
+        print("slice "+ self.ID +  " created with top_height=" + str(self.height_top) + " and bot_height=" + str(self.height_bot) + ". Mesh refinement = " + str(self.mesh_refinement))
 
     def get_slice_thickness(self):
         return (self.height_top-self.height_bot)
+    
+    def assign_section(self):
+        mdb.models['main'].parts['Slice-'+self.ID].SectionAssignment(offset=0.0, 
+        offsetField='', offsetType=MIDDLE_SURFACE, region=
+        mdb.models['main'].parts['Slice-'+self.ID].sets['Set-1'], sectionName=
+        'Section-NO_TRANS_TI6AL4V', thicknessAssignment=FROM_SECTION)
 
 
 ###################################################################################################################################
