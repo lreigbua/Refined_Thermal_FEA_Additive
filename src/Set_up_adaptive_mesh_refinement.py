@@ -12,18 +12,26 @@ from sketch import *
 from visualization import *
 from connectorBehavior import *
 
-class Octree_mesh_generation:
-
-    # component_height=0.9
-    layer_thickness=0.06
-    number_of_refinements=6
+class Abaqus_PBF_prepocessing_w_mesh_refinement:
+    component_height = 0.9
+    layer_thickness = 0.06
+    number_of_refinements = 6 
     component_geometry_name = 'Comp_geometry.sat'
     # component_geometry_name = 'Comp_geometry_my_rectangle_true_height.sat'
     material_names_list = ['NO_TRANS_TI6AL4V','ABQ_PHASE_TRANS_TI6AL4V']
     offset_datum_of_plane = 15
 
-    def __init__(self):
-        self.current_height = 0.48
+class Octree_mesh_generation: #this class performs octree mesh generation of a222222222222 geometry at a given height
+    
+    #inhertis default values from main class
+    layer_thickness=Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
+    number_of_refinements=Abaqus_PBF_prepocessing_w_mesh_refinement.number_of_refinements
+    component_geometry_name = Abaqus_PBF_prepocessing_w_mesh_refinement.component_geometry_name
+    material_names_list = Abaqus_PBF_prepocessing_w_mesh_refinement.material_names_list
+    offset_datum_of_plane = Abaqus_PBF_prepocessing_w_mesh_refinement.offset_datum_of_plane
+
+    def __init__(self,current_height):
+        self.current_height = current_height
         self.current_layer_number = str(int(self.current_height/self.layer_thickness))
 
     def import_initial_geometry(self):
@@ -139,6 +147,14 @@ class Octree_mesh_generation:
             , waitHours=0, waitMinutes=0)
         
         mdb.jobs['layer-'+self.current_layer_number].writeInput()
+    
+    def run(self):
+        mdb.Model(modelType=STANDARD_EXPLICIT, name='main') #Creates a model named main, overwritting if needed
+        self.calculate_slices_heights()
+        self.generate_slices_instances()
+        self.generate_tie_constraits()
+        self.create_assembly_set_1()
+        self.create_job_and_write_inp()
 
 
 
@@ -204,7 +220,7 @@ class Slice:  #class to store attributes and methods for each slice
         mdb.models['main'].rootAssembly.Instance(dependent=ON, name='Slice-'+self.ID+'-1', part=
             mdb.models['main'].parts['Slice-'+self.ID])
 
-        print("slice "+ self.ID +  " created with top_height=" + str(self.height_top) + " and bot_height=" + str(self.height_bot) + ". Mesh refinement = " + str(self.mesh_refinement))
+        # print("slice "+ self.ID +  " created with top_height=" + str(self.height_top) + " and bot_height=" + str(self.height_bot) + ". Mesh refinement = " + str(self.mesh_refinement))
 
     def get_slice_thickness(self):
         return (self.height_top-self.height_bot)
@@ -230,15 +246,9 @@ class Slice:  #class to store attributes and methods for each slice
 ###################################################################################################################################
 ##################################################### MAIN ########################################################################
 ###################################################################################################################################
-
-# Creates Model called main, where the actions will be performed
-mdb.Model(modelType=STANDARD_EXPLICIT, name='main')
-
-Current_layer_pre_processing = Octree_mesh_generation()
-
-
-Current_layer_pre_processing.calculate_slices_heights()
-Current_layer_pre_processing.generate_slices_instances()
-Current_layer_pre_processing.generate_tie_constraits()
-Current_layer_pre_processing.create_assembly_set_1()
-Current_layer_pre_processing.create_job_and_write_inp()
+current_height=Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
+while abs(Abaqus_PBF_prepocessing_w_mesh_refinement.component_height - current_height)>0.001:
+    Current_layer_pre_processing = Octree_mesh_generation(current_height)
+    Current_layer_pre_processing.run()
+    
+    current_height=current_height+Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
