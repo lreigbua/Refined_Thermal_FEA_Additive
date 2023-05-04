@@ -12,18 +12,20 @@ from sketch import *
 from visualization import *
 from connectorBehavior import *
 
-class Mesh_Refinement_Pre_Processing:
+class Octree_mesh_generation:
 
-    component_height=10
+    # component_height=0.9
     layer_thickness=0.06
     number_of_refinements=6
-    component_geometry_name = 'Comp_geometry_my_rectangle_true_height.sat'
+    component_geometry_name = 'Comp_geometry.sat'
     # component_geometry_name = 'Comp_geometry_my_rectangle_true_height.sat'
     material_names_list = ['NO_TRANS_TI6AL4V','ABQ_PHASE_TRANS_TI6AL4V']
     offset_datum_of_plane = 15
 
     def __init__(self):
-        self.current_height = 5
+        self.current_height = 0.48
+        self.current_layer_number = str(int(self.current_height/self.layer_thickness))
+
     def import_initial_geometry(self):
         # Import geometry file of component as a part named comp:
         mdb.openAcis(
@@ -118,6 +120,25 @@ class Mesh_Refinement_Pre_Processing:
                     self.tie_slices(slice,self.slices_array[j+1])
                     
             j=j+1
+    
+    def create_assembly_set_1(self):
+        cells_list=[]
+        for i in mdb.models['main'].rootAssembly.instances.keys():
+            cells_list.append(mdb.models['main'].rootAssembly.instances[i].cells)       # mdb.models['main'].rootAssembly.Set(name='Set-1')
+
+        mdb.models['main'].rootAssembly.Set(cells=cells_list, name='Set-1')
+
+    def create_job_and_write_inp(self):
+        mdb.Job(activateLoadBalancing=False, atTime=None, contactPrint=OFF, 
+            description='', echoPrint=OFF, explicitPrecision=SINGLE, 
+            getMemoryFromAnalysis=True, historyPrint=OFF, memory=90, memoryUnits=
+            PERCENTAGE, model='main', modelPrint=OFF, multiprocessingMode=DEFAULT, 
+            name='layer-'+self.current_layer_number, nodalOutputPrecision=SINGLE, numCpus=1, numDomains=1, 
+            numGPUs=0, numThreadsPerMpiProcess=1, parallelizationMethodExplicit=DOMAIN, 
+            queue=None, resultsFormat=ODB, scratch='', type=ANALYSIS, userSubroutine=''
+            , waitHours=0, waitMinutes=0)
+        
+        mdb.jobs['layer-'+self.current_layer_number].writeInput()
 
 
 
@@ -128,8 +149,8 @@ class Slice:  #class to store attributes and methods for each slice
         self.height_top = 0.0001
         self.height_bot = 0
         self.mesh_refinement = 0.06
-        self.offset_datum_of_plane=Mesh_Refinement_Pre_Processing.offset_datum_of_plane
-        self.material_name = Mesh_Refinement_Pre_Processing.material_names_list[0]
+        self.offset_datum_of_plane=Octree_mesh_generation.offset_datum_of_plane
+        self.material_name = Octree_mesh_generation.material_names_list[0]
         self.ID = 'x'
 
         assert self.height_top > self.height_bot, "height_top should be higher than height_bot'"
@@ -213,9 +234,11 @@ class Slice:  #class to store attributes and methods for each slice
 # Creates Model called main, where the actions will be performed
 mdb.Model(modelType=STANDARD_EXPLICIT, name='main')
 
-Process = Mesh_Refinement_Pre_Processing()
+Current_layer_pre_processing = Octree_mesh_generation()
 
 
-Process.calculate_slices_heights()
-Process.generate_slices_instances()
-Process.generate_tie_constraits()
+Current_layer_pre_processing.calculate_slices_heights()
+Current_layer_pre_processing.generate_slices_instances()
+Current_layer_pre_processing.generate_tie_constraits()
+Current_layer_pre_processing.create_assembly_set_1()
+Current_layer_pre_processing.create_job_and_write_inp()
