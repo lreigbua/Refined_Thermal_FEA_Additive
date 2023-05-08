@@ -9,7 +9,7 @@ cd D:\mkb21147\Abaqus\Macro_Models\Process_Structure_FEA_SLM_w_refinement\Proces
 % status = system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
 total_number_of_layers=15;
 
-for current_layer=1:1:1
+for current_layer=1:1:total_number_of_layers
     delete *.lck
     Process_Generate_toolpath_and_steps = Generate_Toolpath_Event_Series_refinement_class;
     Process_Generate_toolpath_and_steps.nlayers=current_layer;
