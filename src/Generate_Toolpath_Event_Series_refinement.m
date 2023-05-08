@@ -1,6 +1,4 @@
-clc
-close all
-clear variables
+
 %Use International Units
 
 %Laser speed (assumed constant)
