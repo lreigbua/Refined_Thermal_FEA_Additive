@@ -12,6 +12,7 @@ from sketch import *
 from visualization import *
 from connectorBehavior import *
 
+# This code opens all the ODBs generated and produces a file of the animation for each
 
 for i in range(1,16):
     o3 = session.openOdb(name='./Job-layer-'+str(i)+'.odb')
