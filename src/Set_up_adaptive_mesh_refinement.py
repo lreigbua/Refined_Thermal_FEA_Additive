@@ -21,7 +21,7 @@ class Abaqus_PBF_prepocessing_w_mesh_refinement:
     material_names_list = ['NO_TRANS_TI6AL4V','ABQ_PHASE_TRANS_TI6AL4V']
     offset_datum_of_plane = 15
 
-class Octree_mesh_generation: #this class performs octree mesh generation of a222222222222 geometry at a given height
+class Octree_mesh_generation: #this class performs octree mesh generation of a geometry at a given height
     
     #inhertis default values from main class
     layer_thickness=Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
