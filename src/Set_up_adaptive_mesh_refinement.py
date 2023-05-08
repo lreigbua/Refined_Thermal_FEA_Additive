@@ -12,6 +12,8 @@ from sketch import *
 from visualization import *
 from connectorBehavior import *
 
+import numpy as np
+
 class Abaqus_PBF_prepocessing_w_mesh_refinement:
     component_height = 0.9
     layer_thickness = 0.06
@@ -19,7 +21,9 @@ class Abaqus_PBF_prepocessing_w_mesh_refinement:
     component_geometry_name = 'Comp_geometry.sat'
     # component_geometry_name = 'Comp_geometry_my_rectangle_true_height.sat'
     material_names_list = ['NO_TRANS_TI6AL4V','ABQ_PHASE_TRANS_TI6AL4V']
-    offset_datum_of_plane = 15
+    offset_datum_of_plane = 1
+    component_dimensions=[0.6,0.12,0.9]
+    desired_heights=[0.3,0.6,0.84,0.9]
 
 class Octree_mesh_generation: #this class performs octree mesh generation of a geometry at a given height
     
@@ -29,6 +33,9 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
     component_geometry_name = Abaqus_PBF_prepocessing_w_mesh_refinement.component_geometry_name
     material_names_list = Abaqus_PBF_prepocessing_w_mesh_refinement.material_names_list
     offset_datum_of_plane = Abaqus_PBF_prepocessing_w_mesh_refinement.offset_datum_of_plane
+    component_dimensions = Abaqus_PBF_prepocessing_w_mesh_refinement.component_dimensions
+    desired_heights = Abaqus_PBF_prepocessing_w_mesh_refinement.desired_heights
+    
 
     def __init__(self,current_height):
         self.current_height = current_height
@@ -147,6 +154,100 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
             , waitHours=0, waitMinutes=0)
         
         mdb.jobs['layer-'+self.current_layer_number].writeInput()
+
+    def  create_element_HO_set_at(self,height,slice,n):
+    #Create element set for history outputs containing the middle element of each layer
+
+        height_c_top=height
+
+        #  The code below chooses a multiple of the layer thickness above and below the selected height and produces cuts in these planes
+        while(round(height_c_top%self.layer_thickness,2)!=0):
+            height_c_top=height_c_top+0.001
+
+        height_c_top=round(height_c_top,2)
+
+        position=np.array([self.component_dimensions[0]/2,self.component_dimensions[1]/2,height_c_top])
+
+        #set bounding box positions of x and y
+        positionMax=position+slice.mesh_refinement+0.001
+        positionMin=position-slice.mesh_refinement+0.001
+
+        #set bounding box positions of z
+        positionMax[2]=height_c_top+slice.mesh_refinement+0.001
+        positionMin[2]=height_c_top-slice.mesh_refinement-0.001
+
+        # print(height_c_top)
+        print(positionMax)
+        print(positionMin)
+
+
+        # mdb.models['main'].rootAssembly.Set(elements=
+        #     mdb.models['main'].rootAssembly.instances['Slice-'+slice.ID+'-1'].elements.getByBoundingBox(0,0,0,2.55,2.55,1.04), name='Set-HO-layer-prevent-error')
+        #     # mdb.models['main'].rootAssembly.instances['COMP-1'].elements.getByBoundingBox(positionMin[0],positionMin[1],positionMin[2],positionMax[0],positionMax[1],positionMax[2]), name='Set-HO-layer-'+str(int(lay_number)))
+
+
+        lay_number=height_c_top/self.layer_thickness
+        mdb.models['main'].rootAssembly.Set(elements=
+            # mdb.models['main'].rootAssembly.instances['COMP-1'].elements.getByBoundingBox(2.45,2.45,0.94,2.55,2.55,1.04), name='Set-HO-layer-'+str(int(lay_number)))
+            mdb.models['main'].rootAssembly.instances['Slice-'+slice.ID+'-1'].elements.getByBoundingBox(positionMin[0],positionMin[1],positionMin[2],positionMax[0],positionMax[1],positionMax[2]), name='Set-HO-layer-'+str(int(lay_number)))
+
+    def  create_node_HO_set_at(self,height,slice,n):
+    #Create nodes set for history outputs containing the middle element of each layer
+    # !!NEEDS CORRECTION!!
+
+        height_c_top=height
+
+        #  The code below chooses a multiple of the layer thickness above and below the selected height and produces cuts in these planes
+        while(round(height_c_top%self.layer_thickness,2)!=0):
+            height_c_top=height_c_top+0.001
+
+        height_c_top=round(height_c_top,2)
+
+        position=np.array([self.component_dimensions[0]/2,self.component_dimensions[1]/2,height_c_top])
+
+        #set bounding box positions of x and y
+        positionMax=position+slice.mesh_refinement-0.000001
+        positionMin=position-slice.mesh_refinement+0.000001
+
+        #set bounding box positions of z
+        positionMax[2]=height_c_top+slice.mesh_refinement-0.000001
+        positionMin[2]=height_c_top-slice.mesh_refinement+0.000001
+
+        # print(height_c_top)
+        print(positionMax)
+        print(positionMin)
+
+
+        # mdb.models['main'].rootAssembly.Set(elements=
+        #     mdb.models['main'].rootAssembly.instances['Slice-'+slice.ID+'-1'].elements.getByBoundingBox(0,0,0,2.55,2.55,1.04), name='Set-HO-layer-prevent-error')
+        #     # mdb.models['main'].rootAssembly.instances['COMP-1'].elements.getByBoundingBox(positionMin[0],positionMin[1],positionMin[2],positionMax[0],positionMax[1],positionMax[2]), name='Set-HO-layer-'+str(int(lay_number)))
+
+
+        lay_number=height_c_top/self.layer_thickness
+        mdb.models['main'].rootAssembly.Set(nodes=
+            # mdb.models['main'].rootAssembly.instances['COMP-1'].elements.getByBoundingBox(2.45,2.45,0.94,2.55,2.55,1.04), name='Set-HO-layer-'+str(int(lay_number)))
+            mdb.models['main'].rootAssembly.instances['Slice-'+slice.ID+'-1'].nodes.getByBoundingBox(positionMin[0],positionMin[1],positionMin[2],positionMax[0],positionMax[1],positionMax[2]), name='Set-HO-layer-'+str(int(lay_number)))
+
+
+
+    def generate_sets_for_history_outputs(self):
+        
+        for des_height in self.desired_heights:
+
+            if self.current_height+0.0001>des_height:
+
+                k=1
+                for slice in self.slices_array:
+                    if slice.height_top+0.0001>des_height-0.001 and slice.height_bot-0.0001< des_height-0.001:
+                        # self.create_element_HO_set_at(des_height,slice,k)
+                        self.create_node_HO_set_at(des_height,slice,k)
+                        k=k+1
+
+
+
+
+
+
     
     def run(self):
         mdb.Model(modelType=STANDARD_EXPLICIT, name='main') #Creates a model named main, overwritting if needed
@@ -154,6 +255,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         self.generate_slices_instances()
         self.generate_tie_constraits()
         self.create_assembly_set_1()
+        self.generate_sets_for_history_outputs()
         self.create_job_and_write_inp()
 
 
@@ -246,9 +348,13 @@ class Slice:  #class to store attributes and methods for each slice
 ###################################################################################################################################
 ##################################################### MAIN ########################################################################
 ###################################################################################################################################
-current_height=Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
-while abs(Abaqus_PBF_prepocessing_w_mesh_refinement.component_height - current_height)>0.001:
-    Current_layer_pre_processing = Octree_mesh_generation(current_height)
-    Current_layer_pre_processing.run()
+# current_height=Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
+# while abs(Abaqus_PBF_prepocessing_w_mesh_refinement.component_height - current_height)>0.001:
+#     Current_layer_pre_processing = Octree_mesh_generation(current_height)
+#     Current_layer_pre_processing.run()
     
-    current_height=current_height+Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
+#     current_height=current_height+Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
+
+current_height=0.9
+Current_layer_pre_processing = Octree_mesh_generation(current_height)
+Current_layer_pre_processing.run()
