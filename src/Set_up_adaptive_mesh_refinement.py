@@ -15,15 +15,15 @@ from connectorBehavior import *
 import numpy as np
 
 class Abaqus_PBF_prepocessing_w_mesh_refinement:
-    component_height = 0.9
+    component_height = 0.96
     layer_thickness = 0.06
     number_of_refinements = 6 
-    component_geometry_name = 'Comp_geometry.sat'
+    component_geometry_name = 'cube_1mm.sat'
     # component_geometry_name = 'Comp_geometry_my_rectangle_true_height.sat'
     material_names_list = ['NO_TRANS_TI6AL4V','ABQ_PHASE_TRANS_TI6AL4V']
-    offset_datum_of_plane = 1
-    component_dimensions=[0.6,0.12,0.9]
-    desired_heights=[0.3,0.6,0.84,0.9]
+    offset_datum_of_plane = 1.1
+    component_dimensions=[0.96,0.96,0.96]
+    desired_heights=[0.3]
 
 class Octree_mesh_generation: #this class performs octree mesh generation of a geometry at a given height
     
@@ -177,8 +177,8 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         positionMin[2]=height_c_top-slice.mesh_refinement-0.001
 
         # print(height_c_top)
-        print(positionMax)
-        print(positionMin)
+        # print(positionMax)
+        # print(positionMin)
 
 
         # mdb.models['main'].rootAssembly.Set(elements=
@@ -214,8 +214,8 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         positionMin[2]=height_c_top-slice.mesh_refinement+0.000001
 
         # print(height_c_top)
-        print(positionMax)
-        print(positionMin)
+        # print(positionMax)
+        # print(positionMin)
 
 
         # mdb.models['main'].rootAssembly.Set(elements=
@@ -239,8 +239,8 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
                 k=1
                 for slice in self.slices_array:
                     if slice.height_top+0.0001>des_height-0.001 and slice.height_bot-0.0001< des_height-0.001:
-                        # self.create_element_HO_set_at(des_height,slice,k)
-                        self.create_node_HO_set_at(des_height,slice,k)
+                        self.create_element_HO_set_at(des_height,slice,k)
+                        # self.create_node_HO_set_at(des_height,slice,k)
                         k=k+1
 
 
@@ -348,13 +348,13 @@ class Slice:  #class to store attributes and methods for each slice
 ###################################################################################################################################
 ##################################################### MAIN ########################################################################
 ###################################################################################################################################
-# current_height=Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
-# while abs(Abaqus_PBF_prepocessing_w_mesh_refinement.component_height - current_height)>0.001:
-#     Current_layer_pre_processing = Octree_mesh_generation(current_height)
-#     Current_layer_pre_processing.run()
+current_height=Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
+while abs(Abaqus_PBF_prepocessing_w_mesh_refinement.component_height + Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness - current_height)>0.0001:
+    Current_layer_pre_processing = Octree_mesh_generation(current_height)
+    Current_layer_pre_processing.run()
     
-#     current_height=current_height+Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
+    current_height=current_height+Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
 
-current_height=0.9
-Current_layer_pre_processing = Octree_mesh_generation(current_height)
-Current_layer_pre_processing.run()
+# current_height=0.3
+# Current_layer_pre_processing = Octree_mesh_generation(current_height)
+# Current_layer_pre_processing.run()
