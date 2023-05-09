@@ -1,0 +1,277 @@
+*INCLUDE, INPUT = current-layer-Assembly.inp
+*Element Progressive Activation, name=ElementProgressiveActivation1, elset=Slice-1-1.Set-1
+*End Assembly
+** 
+**INCLUDE, INPUT = ABQ_phase_trans_types.inp
+**INCLUDE, INPUT = mat_phase_trans_ti64.inp
+*Material, name=NO_TRANS_TI6AL4V
+*Conductivity, dependencies=1
+ 5.70496,  10.,   0.
+ 7.27496, 110.,   0.
+ 8.84496, 210.,   0.
+  10.415, 310.,   0.
+  11.985, 410.,   0.
+  13.555, 510.,   0.
+  15.125, 610.,   0.
+  16.695, 710.,   0.
+  18.265, 810.,   0.
+  19.835, 910.,   0.
+  21.405,1010.,   0.
+  22.975,1110.,   0.
+  24.545,1210.,   0.
+ 23.6187,1310.,   0.
+ 24.8887,1410.,   0.
+ 26.1587,1510.,   0.
+ 27.4287,1610.,   0.
+*Density
+ 4.43e-09,
+*Specific Heat, dependencies=1
+ 5.43917e+08,  10.,   0.
+ 5.65417e+08, 110.,   0.
+ 5.86917e+08, 210.,   0.
+ 6.08417e+08, 310.,   0.
+ 6.29917e+08, 410.,   0.
+ 6.51417e+08, 510.,   0.
+ 6.72917e+08, 610.,   0.
+ 6.94417e+08, 710.,   0.
+ 7.15917e+08, 810.,   0.
+ 7.37417e+08, 910.,   0.
+ 7.58917e+08,1010.,   0.
+ 7.80417e+08,1110.,   0.
+ 8.01917e+08,1210.,   0.
+ 6.97825e+08,1310.,   0.
+ 7.15835e+08,1410.,   0.
+ 7.33845e+08,1510.,   0.
+ 7.51855e+08,1610.,   0.
+** 
+** 
+** PHYSICAL CONSTANTS
+** 
+*Physical Constants, absolute zero=-273.15, stefan boltzmann=5.6704e-11, universal gas=8314.46
+*Parameter table type, name="ABQ_AM_MaterialDeposition", parameters=2
+STRING,,"Event series",,,
+STRING,,"Deposition process",,"Roller|Bead"
+*Parameter table type, name="ABQ_AM_MaterialDeposition_Advanced", parameters=6
+STRING,"Partial","Activation type",,"Full|Partial"
+FLOAT,0.,"Min volume fraction threshold for partial activation",,,
+FLOAT,0.,"Max volume fraction threshold for partial activation",,,
+FLOAT,0.,"Max volume fraction threshold for full activation",,,
+STRING,"Yes","Orientation for bead type deposition",,,
+INTEGER,0,"Element subdivision order",,,
+*Parameter table type, name="ABQ_AM_MaterialDeposition_Bead", parameters=5
+STRING,,"Stack direction",,"X|Y|Z"
+FLOAT,0.,"Bead height",,,
+FLOAT,0.,"Bead width",,,
+FLOAT,0.,"Activation offset",,,
+STRING,,"Deposition position",,"Below|Above"
+*Parameter table type, name="ABQ_AM_MovingHeatSource", parameters=2
+STRING,,"Event series",,,
+STRING,,"Energy distribution",,"Concentrated|Uniform|Goldak"
+*Parameter table type, name="ABQ_AM_MovingHeatSource_Advanced", parameters=7
+STRING,"False","Enhance energy conservation",,"True|False"
+STRING,"False","Control increment size",,"True|False"
+STRING,"Relative","Offset type",,"Absolute|Relative"
+FLOAT,0.,"Vector x",,,
+FLOAT,0.,"Vector y",,,
+FLOAT,-1.,"Vector z",,,
+FLOAT,1.,"Field factor",,,
+*Parameter table type, name="ABQ_AM_MovingHeatSource_Goldak", parameters=10
+INTEGER,0,"Subdiv x",,,
+INTEGER,0,"Subdiv y",,,
+INTEGER,0,"Subdiv z",,,
+FLOAT,0.,"a",,,
+FLOAT,0.,"b",,,
+FLOAT,0.,"cf",,,
+FLOAT,0.,"cr",,,
+FLOAT,0.,"ff",,,
+FLOAT,0.,"fr",,,
+FLOAT,0.,"Box size factor",,,
+*Parameter table type, name="ABQ_AM_MovingHeatSource_Uniform", parameters=9
+INTEGER,0,"Subdiv x",,,
+INTEGER,0,"Subdiv y",,,
+INTEGER,0,"Subdiv z",,,
+FLOAT,0.,"Offset x",,,
+FLOAT,0.,"Offset y",,,
+FLOAT,0.,"Offset z",,,
+FLOAT,0.,"Box length x",,,
+FLOAT,0.,"Box length y",,,
+FLOAT,0.,"Box length z",,,
+*Property table type, name="ABQ_AM_AbsorptionCoeff", properties=1
+"Absorption Coefficient"
+*Table collection, name="ABQ_AM.Material Input"
+*Parameter Table, type="ABQ_AM_MaterialDeposition" ,label="ABQ_AM_MaterialDeposition"
+"Event series-1", Roller
+*Parameter Table, type="ABQ_AM_MaterialDeposition_Advanced" ,label="ABQ_AM_MaterialDeposition_Advanced"
+Partial, 0., 0., 0., Yes, 0
+*Parameter Table, type="ABQ_AM_MaterialDeposition_Bead" ,label="ABQ_AM_MaterialDeposition_Bead"
+X, 0., 0., 0., Below
+*Table collection, name="ABQ_AM.Moving Heat Source"
+*Parameter Table, type="ABQ_AM_MovingHeatSource" ,label="ABQ_AM_MovingHeatSource"
+"Event series-2", Goldak
+*Parameter Table, type="ABQ_AM_MovingHeatSource_Advanced" ,label="ABQ_AM_MovingHeatSource_Advanced"
+False, False, Relative, 0., 0., -1., 1.
+*Parameter Table, type="ABQ_AM_MovingHeatSource_Goldak" ,label="ABQ_AM_MovingHeatSource_Goldak"
+3, 3, 3, 0.1, 0.06, 0.1, 0.1, 1., 1., 1.
+*Parameter Table, type="ABQ_AM_MovingHeatSource_Uniform" ,label="ABQ_AM_MovingHeatSource_Uniform"
+0, 0, 0, 0., 0., 0., 0., 0., 0.
+*Property table, type="ABQ_AM_AbsorptionCoeff", label="ABQ_AM_AbsorptionCoeff"
+0.55
+**
+** PREDEFINED FIELDS
+** 
+** Name: Field-1   Type: Temperature
+*Initial Conditions, type=TEMPERATURE
+SET-1, 26.
+** Name: Field-2   Type: Field
+***Initial Conditions, type=SOLUTION, variable=1
+**comp-1.Set-1, -1., , , , , , ,
+** , , , , , , , , , , , , , ,
+** , , , , , , , , , , , , , ,
+***INITIAL CONDITION, TYPE=FIELD, VARIABLE=1
+**comp-1.Set-1, -1.
+**------------------------------------------------
+** EVENT SERIES TYPE
+** 
+*Event series type, name="ABQ_AM_HeatSourceTrajectory_RuleID", fields=1
+"Rule ID"
+** 
+** EVENT SERIES TYPE
+** 
+*Event series type, name="ABQ_AM_MaterialDeposition", fields=1
+"On/Off State"
+** 
+** EVENT SERIES TYPE
+** 
+*Event series type, name="ABQ_AM_PowerMagnitude", fields=1
+"Power Magnitude (unit of JT^-1)"
+** 
+** EVENT SERIES DATA
+** 
+*Event series, name="Event series-1", type="ABQ_AM_MaterialDeposition", time=TOTAL TIME, input=./Event_series_Roller_mm.inp
+** ----------------------------------------------------------------
+**
+** EVENT SERIES DATA
+** 
+*Event series, name="Event series-2", type="ABQ_AM_PowerMagnitude", time=TOTAL TIME, input=./Event_series_Heat_mm.inp 
+**-----------------------------------------------------------------
+**
+*MAP SOLUTION
+** STEP: Step-1
+** 
+*Step, name=Step-1, nlgeom=NO, unsymm=YES
+*Heat Transfer, end=PERIOD, deltmx=5000.
+0.1, 0.2, 0.00000001, 0.1,
+**
+** BOUNDARY CONDITIONS
+** 
+** Name: Temp-BC-1 Type: Temperature
+***Boundary
+**SET-4, 11, 11, 26.
+** 
+** LOADS
+** 
+** Name: Load-1   Type: Body heat flux
+*Dflux
+Set-1, MBFNU, ,"ABQ_AM.Moving Heat Source"
+** 
+** INTERACTIONS
+** 
+** Interaction: Int-1
+*Film
+Set-1, FFS, 26., 0.018
+** Interaction: Int-2
+*Radiate
+Set-1, RFS, 26., 0.25
+** 
+** OUTPUT REQUESTS
+** 
+*Restart, write, frequency=0
+** 
+** FIELD OUTPUT: F-Output-2
+** 
+*Output, field
+*Element Output, directions=YES
+SDV, 
+** 
+** FIELD OUTPUT: F-Output-1
+** 
+*Node Output
+NT, RFL
+*Output, history, frequency=0
+*Activate elements, activation=ElementProgressiveActivation1, expansion time constant=2.
+"ABQ_AM.Material Input"
+*End Step
+**------------------------------------------------
+** STEP: S-2
+**
+*Step, name=S-2,EXTRAPOLATION=NO, INC=100000000, UNSYMM=YES
+*Heat Transfer, end=PERIOD, deltmx=1000000.
+0.000517, 0.002066, 0.0001, 0.000517,
+**
+** OUTPUT REQUESTS
+**
+*Restart, write, frequency=0
+**
+** FIELD OUTPUT: F-Output-2
+**
+*Output, field, number interval=2
+*Element Output, directions=YES
+SDV, 
+**
+** FIELD OUTPUT: F-Output-1
+**
+*Node Output
+NT
+*Activate elements, activation=ElementProgressiveActivation1, expansion time constant=2.
+"ABQ_AM.Material Input"
+*End Step
+** ----------------------------------------------------------------
+** STEP: S-3
+**
+*Step, name=S-3,EXTRAPOLATION=NO, INC=100000000, UNSYMM=YES
+*Heat Transfer, end=PERIOD, deltmx=1000000.
+0.050000, 0.200000, 0.0001, 0.050000,
+**
+** OUTPUT REQUESTS
+**
+*Restart, write, frequency=0
+**
+** FIELD OUTPUT: F-Output-2
+**
+*Output, field, number interval=2
+*Element Output, directions=YES
+SDV, 
+**
+** FIELD OUTPUT: F-Output-1
+**
+*Node Output
+NT
+*Activate elements, activation=ElementProgressiveActivation1, expansion time constant=2.
+"ABQ_AM.Material Input"
+*End Step
+** ----------------------------------------------------------------
+**
+** STEP: S-4
+**
+*Step, name=S-4,EXTRAPOLATION=NO, INC=100000000, UNSYMM=YES
+*Heat Transfer, end=PERIOD, deltmx=1000000.
+1.000000, 0.800000, 0.0001, 1.000000,
+**
+** OUTPUT REQUESTS
+**
+*Restart, write, frequency=1
+**
+** FIELD OUTPUT: F-Output-2
+**
+*Output, field, number interval=2
+*Element Output, directions=YES
+SDV, 
+**
+** FIELD OUTPUT: F-Output-1
+**
+*Node Output
+NT
+*Activate elements, activation=ElementProgressiveActivation1, expansion time constant=2.
+"ABQ_AM.Material Input"
+*End Step
+** ----------------------------------------------------------------
