@@ -23,8 +23,8 @@ for i in range(1,16):
     CONTOURS_ON_DEF, ))
     session.viewports['Viewport: 1'].odbDisplay.contourOptions.setValues(
     numIntervals=10, outsideLimitsAboveColor="Grey60",
-    outsideLimitsBelowColor='#0000FF', maxAutoCompute=OFF, maxValue=1650.0,
-    minAutoCompute=OFF, minValue=0.0)
+    outsideLimitsBelowColor='#0000FF', maxAutoCompute=ON, maxValue=10000.0,
+    minAutoCompute=ON, minValue=0.0)
     session.viewports['Viewport: 1'].animationController.setValues(
         animationType=TIME_HISTORY)
     session.viewports['Viewport: 1'].animationController.play(duration=UNLIMITED)
