@@ -7,13 +7,14 @@ cd D:\mkb21147\Abaqus\Macro_Models\Process_Structure_FEA_SLM_w_refinement\Proces
 
 %Run Python Script to generate refined meshes for all layers:
 % status = system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
-total_number_of_layers=15;
+total_number_of_layers=2;
 
-for current_layer=1:1:total_number_of_layers
+% for current_layer=1:1:total_number_of_layers
+for current_layer=1:1:15
     delete *.lck
-    Process_Generate_toolpath_and_steps = Generate_Toolpath_Event_Series_refinement_class;
+    Process_Generate_toolpath_and_steps = Generate_Toolpath_Event_Series_refinement_class();
     Process_Generate_toolpath_and_steps.nlayers=current_layer;
-    Process_Generate_toolpath_and_steps.run()
+    Process_Generate_toolpath_and_steps.run();
     Create_Assembly_INP("layer-"+Process_Generate_toolpath_and_steps.nlayers+".inp")
     
 
