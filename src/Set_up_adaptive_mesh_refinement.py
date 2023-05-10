@@ -13,38 +13,54 @@ from visualization import *
 from connectorBehavior import *
 
 import numpy as np
-
-class Abaqus_PBF_prepocessing_w_mesh_refinement:
-    component_height = 0.96
-    layer_thickness = 0.06
-    number_of_refinements = 6 
-    component_geometry_name = 'cube_1mm.sat'
-    # component_geometry_name = 'Comp_geometry_my_rectangle_true_height.sat'
-    material_names_list = ['NO_TRANS_TI6AL4V','ABQ_PHASE_TRANS_TI6AL4V']
-    offset_datum_of_plane = 1.1
-    component_dimensions=[0.96,0.96,0.96]
-    desired_heights=[0.3]
+import json
 
 class Octree_mesh_generation: #this class performs octree mesh generation of a geometry at a given height
-    
-    #inhertis default values from main class
-    layer_thickness=Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
-    number_of_refinements=Abaqus_PBF_prepocessing_w_mesh_refinement.number_of_refinements
-    component_geometry_name = Abaqus_PBF_prepocessing_w_mesh_refinement.component_geometry_name
-    material_names_list = Abaqus_PBF_prepocessing_w_mesh_refinement.material_names_list
-    offset_datum_of_plane = Abaqus_PBF_prepocessing_w_mesh_refinement.offset_datum_of_plane
-    component_dimensions = Abaqus_PBF_prepocessing_w_mesh_refinement.component_dimensions
-    desired_heights = Abaqus_PBF_prepocessing_w_mesh_refinement.desired_heights
-    
 
-    def __init__(self,current_height):
-        self.current_height = current_height
-        self.current_layer_number = str(int(self.current_height/self.layer_thickness))
+    material_names_list = ['NO_TRANS_TI6AL4V','ABQ_PHASE_TRANS_TI6AL4V']
+
+    file = open('D:\mkb21147\Abaqus\Macro_Models\Process_Structure_FEA_SLM_w_refinement\Process_Structure_FEA_SLM_w_refinement\data\input_file.json', 'r')
+    dict_var_of_json = json.load(file)
+    file.close()
+
+    layer_thickness=dict_var_of_json['layer_thickness']
+    number_of_refinements=dict_var_of_json['number_of_refinements']
+    heights_of_interest=dict_var_of_json['heights_of_interest']
+    component_geometry_path=dict_var_of_json['component_geometry_path']
+
+        # Calculate component dimensions
+    mdb.Model(modelType=STANDARD_EXPLICIT, name='main') #Creates a model named main, overwritting if needed
+    # Import geometry file of component as a part named comp:
+    mdb.openAcis(
+        str(component_geometry_path)
+        , scaleFromFile=OFF)
+    mdb.models['main'].PartFromGeometryFile(combine=False, dimensionality=THREE_D, geometryFile=mdb.acis, name='Comp', type=DEFORMABLE_BODY)
+
+    # calculate component dimensions 
+    component_dimensions=mdb.models['main'].parts['Comp'].queryGeometry(printResults=FALSE)['boundingBox'][1]
+    component_height=component_dimensions[2]
+
+    offset_datum_of_plane = component_dimensions[1]+0.1
+
+    #add new data to json file for matlab
+    newData = {"component_dimensions": component_dimensions}
+    dict_var_of_json.update(newData)
+
+    file = open('D:\mkb21147\Abaqus\Macro_Models\Process_Structure_FEA_SLM_w_refinement\Process_Structure_FEA_SLM_w_refinement\data\jsonData.json', 'w')
+    json.dump(dict_var_of_json, file, indent=4, sort_keys=True)
+    file.close()
+
+
+
+    def __init__(self):
+        self.current_height=self.layer_thickness
+        
+
 
     def import_initial_geometry(self):
         # Import geometry file of component as a part named comp:
         mdb.openAcis(
-            './'+ self.component_geometry_name
+            str(self.component_geometry_path)
             , scaleFromFile=OFF)
         mdb.models['main'].PartFromGeometryFile(combine=False, dimensionality=THREE_D, geometryFile=mdb.acis, name='Comp', type=DEFORMABLE_BODY)
 
@@ -144,16 +160,18 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         mdb.models['main'].rootAssembly.Set(cells=cells_list, name='Set-1')
 
     def create_job_and_write_inp(self):
+        current_layer_number = str(int(self.current_height/self.layer_thickness))
+
         mdb.Job(activateLoadBalancing=False, atTime=None, contactPrint=OFF, 
             description='', echoPrint=OFF, explicitPrecision=SINGLE, 
             getMemoryFromAnalysis=True, historyPrint=OFF, memory=90, memoryUnits=
             PERCENTAGE, model='main', modelPrint=OFF, multiprocessingMode=DEFAULT, 
-            name='layer-'+self.current_layer_number, nodalOutputPrecision=SINGLE, numCpus=1, numDomains=1, 
+            name='layer-'+current_layer_number, nodalOutputPrecision=SINGLE, numCpus=1, numDomains=1, 
             numGPUs=0, numThreadsPerMpiProcess=1, parallelizationMethodExplicit=DOMAIN, 
             queue=None, resultsFormat=ODB, scratch='', type=ANALYSIS, userSubroutine=''
             , waitHours=0, waitMinutes=0)
         
-        mdb.jobs['layer-'+self.current_layer_number].writeInput()
+        mdb.jobs['layer-'+current_layer_number].writeInput()
 
     def  create_element_HO_set_at(self,height,slice,n):
     #Create element set for history outputs containing the middle element of each layer
@@ -232,7 +250,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
 
     def generate_sets_for_history_outputs(self):
         
-        for des_height in self.desired_heights:
+        for des_height in self.heights_of_interest:
 
             if self.current_height+0.0001>des_height:
 
@@ -348,13 +366,11 @@ class Slice:  #class to store attributes and methods for each slice
 ###################################################################################################################################
 ##################################################### MAIN ########################################################################
 ###################################################################################################################################
-current_height=Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
-while abs(Abaqus_PBF_prepocessing_w_mesh_refinement.component_height + Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness - current_height)>0.0001:
-    Current_layer_pre_processing = Octree_mesh_generation(current_height)
-    Current_layer_pre_processing.run()
-    
-    current_height=current_height+Abaqus_PBF_prepocessing_w_mesh_refinement.layer_thickness
 
-# current_height=0.3
-# Current_layer_pre_processing = Octree_mesh_generation(current_height)
-# Current_layer_pre_processing.run()
+
+
+Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
+
+while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.0001: # Performs Octree mesh generation until it has been done on all layers
+    Process.run()
+    Process.current_height=Process.current_height+Process.layer_thickness
