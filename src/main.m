@@ -13,8 +13,8 @@ cd ..\data\
 system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
 total_number_of_layers=read_number_of_layers();
 
-% for current_layer=1:1:total_number_of_layers
-for current_layer=2:1:2
+for current_layer=1:1:total_number_of_layers
+% for current_layer=2:1:2
     delete *.lck
     Process_Generate_toolpath_and_steps = Generate_Toolpath_Event_Series_refinement_class();
     Process_Generate_toolpath_and_steps.read_input_file()
