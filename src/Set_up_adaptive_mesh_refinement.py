@@ -19,7 +19,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
 
     material_names_list = ['NO_TRANS_TI6AL4V','ABQ_PHASE_TRANS_TI6AL4V']
 
-    file = open('D:\mkb21147\Abaqus\Macro_Models\Process_Structure_FEA_SLM_w_refinement\Process_Structure_FEA_SLM_w_refinement\data\input_file.json', 'r')
+    file = open('.\..\input\input_file.json', 'r')
     dict_var_of_json = json.load(file)
     file.close()
 
@@ -46,7 +46,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
     newData = {"component_dimensions": component_dimensions}
     dict_var_of_json.update(newData)
 
-    file = open('D:\mkb21147\Abaqus\Macro_Models\Process_Structure_FEA_SLM_w_refinement\Process_Structure_FEA_SLM_w_refinement\data\jsonData.json', 'w')
+    file = open('.\jsonData.json', 'w')
     json.dump(dict_var_of_json, file, indent=4, sort_keys=True)
     file.close()
 

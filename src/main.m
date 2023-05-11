@@ -39,7 +39,7 @@ function total_number_of_layers = read_number_of_layers()
 %Calculates total number of layers using data from updated json file
     code=[
             "import json"
-            "with open('D:\mkb21147\Abaqus\Macro_Models\Process_Structure_FEA_SLM_w_refinement\Process_Structure_FEA_SLM_w_refinement\data\jsonData.json', 'r') as myfile:"
+            "with open('.\jsonData.json', 'r') as myfile:"
             "    data=myfile.read()"
             "obj = json.loads(data)"
             "out=obj"

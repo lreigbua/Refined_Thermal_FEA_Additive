@@ -1,0 +1,11 @@
+{
+"layer_thickness" : 0.06,
+"number_of_refinements" : 6,
+"heights_of_interest": [0.3,0.6],
+"component_geometry_path" : "D:/mkb21147/Abaqus/Macro_Models/Process_Structure_FEA_SLM_w_refinement/Process_Structure_FEA_SLM_w_refinement/data/Comp_geometry_cylinder.sat",
+"Laser_Power" : 375000.0,
+"Laser_Speed" : 1029.0,
+"hatch_spacing" : 0.060,
+"dosing_time" : 0.2,
+"inter_layer_time" : 8.0
+}
