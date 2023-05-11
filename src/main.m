@@ -10,7 +10,7 @@ cd ..\data\
 
 %%
 %Run Python Script to generate refined meshes for all layers:
-% system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
+system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
 total_number_of_layers=read_number_of_layers();
 
 % for current_layer=1:1:total_number_of_layers
