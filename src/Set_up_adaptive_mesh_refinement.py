@@ -15,6 +15,19 @@ from connectorBehavior import *
 import numpy as np
 import json
 
+def assign_section_to_part(part_name,section_name):
+        mdb.models['main'].parts[part_name].SectionAssignment(offset=0.0,
+        offsetField='', offsetType=MIDDLE_SURFACE, region=
+        mdb.models['main'].parts[part_name].sets['Set-1'], sectionName=
+        section_name, thicknessAssignment=FROM_SECTION)
+
+def change_part_to_thermal_elements(part_name):
+        mdb.models['main'].parts[part_name].setElementType(elemTypes=(
+            ElemType(elemCode=DC3D8, elemLibrary=STANDARD), ElemType(elemCode=DC3D6,
+            elemLibrary=STANDARD), ElemType(elemCode=DC3D4, elemLibrary=STANDARD)),
+            regions=(
+            mdb.models['main'].parts[part_name].cells, ))
+
 class Octree_mesh_generation: #this class performs octree mesh generation of a geometry at a given height
 
     material_names_list = ['NO_TRANS_TI6AL4V','ABQ_PHASE_TRANS_TI6AL4V']
@@ -27,6 +40,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
     number_of_refinements=dict_var_of_json['number_of_refinements']
     heights_of_interest=dict_var_of_json['heights_of_interest']
     component_geometry_path=dict_var_of_json['component_geometry_path']
+    substrate_dimensions = dict_var_of_json['substrate_dimensions']
 
         # Calculate component dimensions
     mdb.Model(modelType=STANDARD_EXPLICIT, name='main') #Creates a model named main, overwritting if needed
@@ -110,6 +124,15 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
                 self.slices_array[n].height_bot = self.slices_array[n].height_top-current_possible_slice_thickness
                 self.slices_array[n].mesh_refinement = self.layer_thickness * 2**(n-1)
 
+            if n==0 or n==1:
+                i=1
+                for height in self.heights_of_interest:    #decreases resolution if layer not of interest
+                    if abs(self.current_height-height)>0.000001 and i==1:
+                        self.slices_array[n].mesh_refinement*=2
+                        i+=1
+
+
+
 
 
     def generate_slices_instances(self): #Creates the instances of the different slices using Slices array
@@ -128,9 +151,125 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
             if slice.height_top>=0.0002: #this if is to delete slides created by bugs
                 slice.ID = str(i)
                 slice.Create_Slice_Instance() #Cuts the given slice out from the CAD file
-                slice.assign_section()
+
+                if slice == self.slices_array[0]: #if this is the top slice
+                    assign_section_to_part('Slice-'+slice.ID,'Section-NO_TRANS_TI6AL4V')
+                else:
+                    assign_section_to_part('Slice-'+slice.ID,'Section-NO_TRANS_TI6AL4V')
             else:
                 del(self.slices_array[i-1])
+
+    def generate_susbtrate(self):
+        gap=1.2
+
+        # Create substrate out
+        mdb.models['main'].ConstrainedSketch(name='__profile__', sheetSize=100.0)
+        mdb.models['main'].sketches['__profile__'].rectangle(point1=(self.substrate_dimensions[0]/2+self.component_dimensions[0]/2, self.substrate_dimensions[1]/2+self.component_dimensions[1]/2), 
+            point2=(-self.substrate_dimensions[0]/2+self.component_dimensions[0]/2, -self.substrate_dimensions[1]/2+self.component_dimensions[1]/2))
+        mdb.models['main'].Part(dimensionality=THREE_D, name='Substrate_out', type=
+            DEFORMABLE_BODY)
+        mdb.models['main'].parts['Substrate_out'].BaseSolidExtrude(depth=9.0, 
+            sketch=mdb.models['main'].sketches['__profile__'])
+        
+        #cur region for substrate in
+        DatumP_XY = mdb.models['main'].parts['Substrate_out'].DatumPlaneByPrincipalPlane(offset=9-0.96, principalPlane=XYPLANE)
+        DatumAxisX = mdb.models['main'].parts['Substrate_out'].DatumAxisByPrincipalAxis(principalAxis=YAXIS)
+        mdb.models['main'].ConstrainedSketch(gridSpacing=0.05, name='__profile__',
+            sheetSize=20.0, transform=
+        mdb.models['main'].parts['Substrate_out'].MakeSketchTransform(
+        sketchPlane=mdb.models['main'].parts['Substrate_out'].datums[2],
+        sketchPlaneSide=SIDE1,
+        sketchUpEdge=mdb.models['main'].parts['Substrate_out'].datums[3],
+        sketchOrientation=RIGHT, origin=(0.0, 0.0, 0.0)))
+        mdb.models['main'].parts['Substrate_out'].projectReferencesOntoSketch(filter=
+            COPLANAR_EDGES, sketch=mdb.models['main'].sketches['__profile__'])
+
+        mdb.models['main'].sketches['__profile__'].rectangle(point1=(self.component_dimensions[0]+gap, self.component_dimensions[1]+gap), 
+            point2=(-gap, -gap))
+
+        mdb.models['main'].parts['Substrate_out'].CutExtrude(flipExtrudeDirection=ON, sketch=
+            mdb.models['main'].sketches['__profile__'], sketchOrientation=RIGHT,
+            sketchPlane=mdb.models['main'].parts['Substrate_out'].datums[2], sketchPlaneSide=
+            SIDE1, sketchUpEdge=mdb.models['main'].parts['Substrate_out'].datums[3])
+        del mdb.models['main'].sketches['__profile__']
+
+        mdb.models['main'].parts['Substrate_out'].PartitionCellByExtrudeEdge(cells=
+            mdb.models['main'].parts['Substrate_out'].cells,
+            edges=(mdb.models['main'].parts['Substrate_out'].edges[0], 
+            mdb.models['main'].parts['Substrate_out'].edges[4], 
+            mdb.models['main'].parts['Substrate_out'].edges[7], 
+            mdb.models['main'].parts['Substrate_out'].edges[10]), line=
+            mdb.models['main'].parts['Substrate_out'].edges[17], sense=REVERSE)
+
+
+        # Create substrate in
+        mdb.models['main'].ConstrainedSketch(name='__profile__', sheetSize=100.0)
+        mdb.models['main'].sketches['__profile__'].rectangle(point1=(self.component_dimensions[0]+gap, self.component_dimensions[1]+gap), 
+            point2=(-gap, -gap))
+        mdb.models['main'].Part(dimensionality=THREE_D, name='Substrate_in', type=
+            DEFORMABLE_BODY)
+        mdb.models['main'].parts['Substrate_in'].BaseSolidExtrude(depth=0.96, 
+            sketch=mdb.models['main'].sketches['__profile__'])
+        
+        #Add to assembly
+        mdb.models['main'].rootAssembly.Instance(dependent=ON, name='Substrate_in-1'
+            , part=mdb.models['main'].parts['Substrate_in'])
+        mdb.models['main'].rootAssembly.Instance(dependent=ON, name=
+            'Substrate_out-1', part=mdb.models['main'].parts['Substrate_out'])
+        
+        #Translate substrates to bottom
+        mdb.models['main'].rootAssembly.translate(instanceList=('Substrate_out-1',), vector=(0.0, 0.0, -9.0))
+        mdb.models['main'].rootAssembly.translate(instanceList=( 'Substrate_in-1',), vector=(0.0, 0.0, -0.96))
+
+        #Mesh
+        mdb.models['main'].parts['Substrate_out'].seedPart(deviationFactor=0.1,
+        minSizeFactor=0.1, size=self.layer_thickness*32)
+        mdb.models['main'].parts['Substrate_out'].generateMesh()
+        
+        mdb.models['main'].parts['Substrate_in'].seedPart(deviationFactor=0.1,
+        minSizeFactor=0.1, size=self.slices_array[-1].mesh_refinement*4)
+        mdb.models['main'].parts['Substrate_in'].generateMesh()
+
+        #Change mesh to thermal elements
+        change_part_to_thermal_elements('Substrate_in')
+        change_part_to_thermal_elements('Substrate_out')
+
+        #create sets-1 and assign section
+        mdb.models['main'].parts['Substrate_in'].Set(elements=mdb.models['main'].parts['Substrate_in'].elements, name='Set-1')
+        mdb.models['main'].parts['Substrate_out'].Set(elements=mdb.models['main'].parts['Substrate_out'].elements, name='Set-1')
+        assign_section_to_part('Substrate_in','Section-NO_TRANS_TI6AL4V')
+        assign_section_to_part('Substrate_out','Section-NO_TRANS_TI6AL4V')
+
+    #tie substrate_in to last slice
+        
+        #Create Surfaces
+        mdb.models['main'].rootAssembly.Surface(name='subst_in_top_surface', side1Faces=
+            mdb.models['main'].rootAssembly.instances['Substrate_in-1'].faces.getByBoundingBox(-10000000,-1000000,-0.00001,10000000,1000000,0.00001))        
+        
+        self.slices_array[-1].create_bot_surface()  #creates bottom surface of last slice
+
+        #Creates tie
+        mdb.models['main'].Tie(adjust=ON, main=
+            mdb.models['main'].rootAssembly.surfaces['subst_in_top_surface'], name=
+            'Component_to_substrate', positionToleranceMethod=COMPUTED, secondary=
+            mdb.models['main'].rootAssembly.surfaces[self.slices_array[-1].bot_surface_name], thickness=
+            ON, tieRotations=ON)
+
+    #tie both substrates
+        #Create Surfaces
+        mdb.models['main'].rootAssembly.Surface(name='subst_in_out_surface', side1Faces=
+            mdb.models['main'].rootAssembly.instances['Substrate_in-1'].faces.getByBoundingBox(-gap,-gap,-self.substrate_dimensions[2]-1,gap+self.component_dimensions[0],gap+self.component_dimensions[1],1))
+        
+        mdb.models['main'].rootAssembly.Surface(name='subst_out_in_surface', side1Faces=
+            mdb.models['main'].rootAssembly.instances['Substrate_out-1'].faces.getByBoundingBox(-gap,-gap,-1,gap+self.component_dimensions[0],gap+self.component_dimensions[1],1))        
+
+        #Creates tie
+        mdb.models['main'].Tie(adjust=ON, main=
+            mdb.models['main'].rootAssembly.surfaces['subst_out_in_surface'], name=
+            'subst_to_subst', positionToleranceMethod=COMPUTED, secondary=
+            mdb.models['main'].rootAssembly.surfaces['subst_in_out_surface'], thickness=
+            ON, tieRotations=ON)
+
 
     def tie_slices(self,top_slice,bot_slice):
         mdb.models['main'].Tie(adjust=ON, main=
@@ -271,6 +410,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         mdb.Model(modelType=STANDARD_EXPLICIT, name='main') #Creates a model named main, overwritting if needed
         self.calculate_slices_heights()
         self.generate_slices_instances()
+        self.generate_susbtrate()
         self.generate_tie_constraits()
         self.create_assembly_set_1()
         self.generate_sets_for_history_outputs()
@@ -371,6 +511,7 @@ class Slice:  #class to store attributes and methods for each slice
 
 Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
 
+# for i in range(0,1):
 while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.0001: # Performs Octree mesh generation until it has been done for all layer heights
     Process.run()
     Process.current_height=Process.current_height+Process.layer_thickness

@@ -9,7 +9,7 @@ properties
     Laser_Speed;
     %Scan Spacing/ hatch hatch_spacingcing (distance between laser paths in same layer)
     % hatch_spacing=0.10;
-    hatch_spacing=0.060;
+    hatch_spacing=0.12;
     %length in x of rectangle in mm
     lx=0.96;
     %length in y of rectangle in mm
