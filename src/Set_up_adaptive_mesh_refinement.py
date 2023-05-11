@@ -125,11 +125,13 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
                 self.slices_array[n].mesh_refinement = self.layer_thickness * 2**(n-1)
 
             if n==0 or n==1:
-                i=1
+                c=0
                 for height in self.heights_of_interest:    #decreases resolution if layer not of interest
-                    if abs(self.current_height-height)>0.000001 and i==1:
-                        self.slices_array[n].mesh_refinement*=2
-                        i+=1
+                    if abs(self.current_height-height)>0.000001:
+                        c+=1
+                
+                if c == len(self.heights_of_interest):
+                    self.slices_array[n].mesh_refinement*=2
 
 
 
@@ -511,7 +513,7 @@ class Slice:  #class to store attributes and methods for each slice
 
 Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
 
-# for i in range(0,1):
+# for i in range(0,3):
 while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.0001: # Performs Octree mesh generation until it has been done for all layer heights
     Process.run()
     Process.current_height=Process.current_height+Process.layer_thickness
