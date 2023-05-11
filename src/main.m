@@ -2,9 +2,13 @@ clc
 close all
 clear variables
 
-cd D:\mkb21147\Abaqus\Macro_Models\Process_Structure_FEA_SLM_w_refinement\Process_Structure_FEA_SLM_w_refinement\data
+%Go to data folder
+current_script_Path = matlab.desktop.editor.getActiveFilename;
+folder_of_current_script_Path = current_script_Path(1:end-6);
+cd(folder_of_current_script_Path)
+cd ..\data\
 
-
+%%
 %Run Python Script to generate refined meshes for all layers:
 system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
 total_number_of_layers=read_number_of_layers();
