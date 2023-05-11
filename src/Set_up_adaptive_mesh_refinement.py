@@ -19,7 +19,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
 
     material_names_list = ['NO_TRANS_TI6AL4V','ABQ_PHASE_TRANS_TI6AL4V']
 
-    file = open('.\..\input\input_file.json', 'r')
+    file = open('..\input\input_file.json', 'r')
     dict_var_of_json = json.load(file)
     file.close()
 
