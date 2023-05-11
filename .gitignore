@@ -424,6 +424,7 @@ data/abaqus.rpy.8
 data/abaqus.rpy.7
 data/abaqus.rpy.6
 data/abaqus.rpy.5
+data/
 input/jsonData.json
 input/Comp_geometry_trapeze_w_holes.sat
 input/Comp_geometry_trapeze.sat
@@ -431,3 +432,4 @@ input/Comp_geometry_my_rectangle_true_height.sat
 input/Comp_geometry_my_rectangle_09mm_height.sat
 input/Comp_geometry_cylinder.sat
 input/Comp_Geometry.sat
+data/abaqus.rpy.11
