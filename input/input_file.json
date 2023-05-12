@@ -1,9 +1,9 @@
 {
 "layer_thickness" : 0.06,
 "number_of_refinements" : 6,
-"heights_of_interest": [0.12,1],
+"heights_of_interest": [0.6],
 "component_geometry_path" : "../input/Comp_geometry_my_rectangle_09mm_height.sat",
-"substrate_dimensions" : [80,80,9],
+"substrate_dimensions" : [80.64,80.64,9.6],
 "Laser_Power" : 375000.0,
 "Laser_Speed" : 1029.0,
 "hatch_spacing" : 0.12,

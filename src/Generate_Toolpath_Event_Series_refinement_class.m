@@ -89,7 +89,7 @@ methods
         x(1)=obj.hatch_spacing;
         y(1)=obj.hatch_spacing;
         z(1)=obj.layer_thickness*obj.current_layer;
-        p(1)=0;
+        p(1)=obj.Laser_Power;
              
         %%
         % Calculate x and y for each layer
@@ -338,7 +338,8 @@ methods
         fileID = fopen('Steps.txt','w');
         %specify frequency of outputs
         freq=', number interval=2';  % number of times field is output in this step
-        freq_scan=', number interval=50';
+%         freq_scan=', number interval=50';
+        freq_scan='';
         %%
 %         calculate what layers are of interest based on heights of interest
         for i=1:1:length(obj.heights_of_interest)
