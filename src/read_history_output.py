@@ -40,7 +40,8 @@ for layer_number in range(10,int(n_layers+1)):
             history_region_name=odb.steps[step].historyRegions.keys()[0]
 
             data=np.array(odb.steps[step].historyRegions[history_region_name].historyOutputs['TEMP'].data)
-            if(len(data)>0):
+
+            if(type(data)=='numpy.ndarray'):
                 np.savetxt("./history_out_{}_step_{}.csv".format(Job_name,step),data)
 
     odb.close()
