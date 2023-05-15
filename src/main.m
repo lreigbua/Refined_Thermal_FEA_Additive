@@ -13,14 +13,14 @@ cd ..\data\
 % system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
 total_number_of_layers=read_number_of_layers();
 
-
 copyfile ../src/INP_default.inp ./INP.txt
 
-for current_layer=10:1:10
-% for current_layer=3:1:3
+
+Process_Generate_toolpath_and_steps = Generate_Toolpath_Event_Series_refinement_class();
+Process_Generate_toolpath_and_steps.read_input_file()
+% for current_layer=10:1:10
+for current_layer=1:1:total_number_of_layers
     delete *.lck
-    Process_Generate_toolpath_and_steps = Generate_Toolpath_Event_Series_refinement_class();
-    Process_Generate_toolpath_and_steps.read_input_file()
     Process_Generate_toolpath_and_steps.current_layer=current_layer;
     Process_Generate_toolpath_and_steps.run();
     Create_Assembly_INP("layer-"+Process_Generate_toolpath_and_steps.nlayers+".inp")
