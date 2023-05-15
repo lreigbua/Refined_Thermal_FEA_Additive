@@ -12,9 +12,13 @@ from sketch import *
 from visualization import *
 from connectorBehavior import *
 
+
+import sys
+import os
+
 # This code opens all the ODBs generated and produces a file of the animation for each
 
-for i in range(1,3):
+for i in range(1,int(sys.argv[-1])+1):
 
     o3 = session.openOdb(name='./Job-layer-'+str(i)+'.odb')
     session.viewports['Viewport: 1'].setValues(displayedObject=o3)
