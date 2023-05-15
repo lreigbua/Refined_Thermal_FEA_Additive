@@ -179,7 +179,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
                 del(self.slices_array[i-1])
 
     def generate_susbtrate(self):
-        gap=self.layer_thickness*16
+        gap=self.layer_thickness*2**(self.number_of_refinements-2)
 
         # Create substrate out
         mdb.models['main'].ConstrainedSketch(name='__profile__', sheetSize=100.0)
@@ -242,7 +242,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
 
         #Mesh
         mdb.models['main'].parts['Substrate_out'].seedPart(deviationFactor=0.1,
-        minSizeFactor=0.1, size=gap*2)
+        minSizeFactor=0.1, size=gap*4)
         mdb.models['main'].parts['Substrate_out'].generateMesh()
         
         mdb.models['main'].parts['Substrate_in'].seedPart(deviationFactor=0.1,
@@ -530,10 +530,14 @@ class Slice:  #class to store attributes and methods for each slice
 
 Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
 
-Process.current_height=83*0.06
+# Process.current_height=83*0.06
 
 # for i in range(42,43):
 while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.000001: # Performs Octree mesh generation until it has been done for all layer heights
     print(Process.current_height)
     Process.run()
     Process.current_height=round(Process.current_height+Process.layer_thickness,2)
+
+# print(Process.current_height)
+# Process.run()
+# Process.current_height=round(Process.current_height+Process.layer_thickness,2)
