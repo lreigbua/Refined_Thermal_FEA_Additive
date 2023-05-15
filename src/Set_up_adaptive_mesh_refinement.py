@@ -27,6 +27,18 @@ def change_part_to_thermal_elements(part_name):
             elemLibrary=STANDARD), ElemType(elemCode=DC3D4, elemLibrary=STANDARD)),
             regions=(
             mdb.models['main'].parts[part_name].cells, ))
+        
+
+def closest_layer_height(given_height):
+    height_c_top=given_height
+
+    #  The code below chooses a multiple of the layer thickness above and below the selected height and produces cuts in these planes
+    while(round(height_c_top%Octree_mesh_generation.layer_thickness,2)!=0):
+        height_c_top=height_c_top+0.001
+
+    height_c_top=round(height_c_top,2)
+
+    return height_c_top
 
 class Octree_mesh_generation: #this class performs octree mesh generation of a geometry at a given height
 
@@ -130,7 +142,9 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
             if n==0 or n==1:
                 c=0
                 for height in self.heights_of_interest:    #decreases resolution if layer not of interest
-                    if abs(self.current_height-height)>0.000001:
+
+                    height_top=closest_layer_height(height)
+                    if abs(self.current_height-height_top)>0.000001:
                         c+=1
                 
                 if c == len(self.heights_of_interest):
@@ -516,7 +530,10 @@ class Slice:  #class to store attributes and methods for each slice
 
 Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
 
-# for i in range(0,3):
-while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.0001: # Performs Octree mesh generation until it has been done for all layer heights
+Process.current_height=83*0.06
+
+# for i in range(42,43):
+while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.000001: # Performs Octree mesh generation until it has been done for all layer heights
+    print(Process.current_height)
     Process.run()
-    Process.current_height=Process.current_height+Process.layer_thickness
+    Process.current_height=round(Process.current_height+Process.layer_thickness,2)
