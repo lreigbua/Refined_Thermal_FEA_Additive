@@ -56,6 +56,9 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
 
     offset_datum_of_plane = component_dimensions[1]+0.1
 
+    assert abs(component_dimensions[2]%layer_thickness-0.0) < 0.0000001 , "Component height needs to be divisible by the layer thickness"
+
+
     #add new data to json file for matlab
     newData = {"component_dimensions": component_dimensions}
     dict_var_of_json.update(newData)
@@ -513,7 +516,7 @@ class Slice:  #class to store attributes and methods for each slice
 
 Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
 
-for i in range(0,3):
-# while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.0001: # Performs Octree mesh generation until it has been done for all layer heights
+# for i in range(0,3):
+while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.0001: # Performs Octree mesh generation until it has been done for all layer heights
     Process.run()
     Process.current_height=Process.current_height+Process.layer_thickness

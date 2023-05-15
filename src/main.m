@@ -5,12 +5,13 @@ clear variables
 %Go to data folder
 current_script_Path = matlab.desktop.editor.getActiveFilename;
 folder_of_current_script_Path = current_script_Path(1:end-6);
-cd(folder_of_current_script_Path)
+cd(folder_of_current_script_Path);
+addpath(folder_of_current_script_Path);
 cd ..\data\
 
 %%
 % Run Python Script to generate refined meshes for all layers:
-% system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
+system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
 total_number_of_layers=read_number_of_layers();
 
 copyfile ../src/INP_default.inp ./INP.txt

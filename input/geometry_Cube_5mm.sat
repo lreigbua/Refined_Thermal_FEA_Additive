@@ -1,108 +1,108 @@
 2600 0 1 0           
-17 Abaqus 2022 - 310 12 ACIS 31.0 NT 24 Mon May 15 11:05:46 2023 
+17 Abaqus 2022 - 310 12 ACIS 31.0 NT 24 Mon May 15 11:56:49 2023 
 1 9.9999999999999995e-07 1e-10 
-T @77 4BQCW9R3TXBXABVMK28ENKHE89PK27Q5_CUKP85C3D44R463UCFVM65XPAGVMJP439U3F6PAFASCG 
--0 body $1 -1 -1 $-1 $2 $-1 $3 T 0 0 0 5 5 5 #
--1 string_attrib-name_attrib-gen-attrib $-1 -1 $4 $-1 $0 2 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 @13 HKS_PART_NAME @8 Cube_5mm #
--2 lump $5 -1 -1 $-1 $-1 $6 $0 T 0 0 0 5 5 5 #
+T @77 9FCRUN5R9965MFJEACUGZSKJP9UK3B6DSCGCF6QX69RBFV65BB7CJ8PCYAVVPR673CUBGEP3BCQMN 
+-0 body $1 -1 -1 $-1 $2 $-1 $3 T 0 0 0 5.04 5.04 5.04 #
+-1 string_attrib-name_attrib-gen-attrib $-1 -1 $4 $-1 $0 2 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 @13 HKS_PART_NAME @6 Part-1 #
+-2 lump $5 -1 -1 $-1 $-1 $6 $0 T 0 0 0 5.04 5.04 5.04 #
 -3 transform $-1 -1 1 0 0 0 1 0 0 0 1 0 0 0 1 no_rotate no_reflect no_shear #
 -4 string_attrib-name_attrib-gen-attrib $-1 -1 $-1 $1 $0 2 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 @18 HKS_ATTRIB_BODY_ID @1 1 #
 -5 cell_ptr-ct-attrib $-1 -1 $-1 $-1 $2 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 1 1 1 $7 $-1 auto #
--6 shell $-1 -1 -1 $-1 $-1 $-1 $8 $-1 $2 T 0 0 0 5 5 5 #
+-6 shell $-1 -1 -1 $-1 $-1 $-1 $8 $-1 $2 T 0 0 0 5.04 5.04 5.04 #
 -7 cell3d-cell $-1 -1 $-1 $2 $-1 1 $9 #
--8 face $10 -1 -1 $-1 $11 $12 $6 $-1 $13 forward single T 0 0 0 0 5 5 F #
+-8 face $10 -1 -1 $-1 $11 $12 $6 $-1 $13 forward single T 0 0 0 0 5.04 5.04 F #
 -9 cshell $-1 -1 $-1 $14 $7 #
 -10 cface_ptr-ct-attrib $-1 -1 $-1 $-1 $8 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 1 1 1 $-1 $15 #
--11 face $16 -1 -1 $-1 $17 $18 $6 $-1 $19 forward single T 0 5 0 5 5 5 F #
--12 loop $-1 -1 -1 $-1 $-1 $20 $8 T 0 0 0 0 5 5 periphery $13 F #
--13 plane-surface $-1 -1 -1 $-1 0 2.5 0 -1 0 0 -0 -1 -0 forward_v I I I I #
+-11 face $16 -1 -1 $-1 $17 $18 $6 $-1 $19 forward single T 0 5.04 0 5.04 5.04 5.04 F #
+-12 loop $-1 -1 -1 $-1 $-1 $20 $8 T 0 0 0 0 5.04 5.04 periphery $13 F #
+-13 plane-surface $-1 -1 -1 $-1 0 2.52 0 -1 0 0 -0 -1 -0 forward_v I I I I #
 -14 cface $-1 -1 $21 $9 $17 0 #
 -15 cface $-1 -1 $-1 $9 $8 0 #
 -16 cface_ptr-ct-attrib $-1 -1 $-1 $-1 $11 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 1 1 1 $-1 $22 #
--17 face $23 -1 -1 $-1 $24 $25 $6 $-1 $26 forward single T 5 0 0 5 5 5 F #
--18 loop $-1 -1 -1 $-1 $-1 $27 $11 T 0 5 0 5 5 5 periphery $19 F #
--19 plane-surface $-1 -1 -1 $-1 2.5 5 0 0 1 0 -1 -0 -0 forward_v I I I I #
+-17 face $23 -1 -1 $-1 $24 $25 $6 $-1 $26 forward single T 5.04 0 0 5.04 5.04 5.04 F #
+-18 loop $-1 -1 -1 $-1 $-1 $27 $11 T 0 5.04 0 5.04 5.04 5.04 periphery $19 F #
+-19 plane-surface $-1 -1 -1 $-1 2.52 5.04 0 0 1 0 -1 -0 -0 forward_v I I I I #
 -20 coedge $-1 -1 -1 $-1 $28 $29 $30 $31 forward $12 $-1 #
 -21 cface $-1 -1 $32 $9 $24 0 #
 -22 cface $-1 -1 $33 $9 $11 0 #
 -23 cface_ptr-ct-attrib $-1 -1 $-1 $-1 $17 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 1 1 1 $-1 $14 #
--24 face $34 -1 -1 $-1 $35 $36 $6 $-1 $37 forward single T 0 0 0 5 0 5 F #
--25 loop $-1 -1 -1 $-1 $-1 $38 $17 T 5 0 0 5 5 5 periphery $26 F #
--26 plane-surface $-1 -1 -1 $-1 5 2.5 0 1 0 -0 -0 1 -0 forward_v I I I I #
+-24 face $34 -1 -1 $-1 $35 $36 $6 $-1 $37 forward single T 0 0 0 5.04 0 5.04 F #
+-25 loop $-1 -1 -1 $-1 $-1 $38 $17 T 5.04 0 0 5.04 5.04 5.04 periphery $26 F #
+-26 plane-surface $-1 -1 -1 $-1 5.04 2.52 0 1 0 -0 -0 1 -0 forward_v I I I I #
 -27 coedge $-1 -1 -1 $-1 $39 $40 $41 $42 forward $18 $-1 #
 -28 coedge $-1 -1 -1 $-1 $43 $20 $40 $44 reversed $12 $-1 #
 -29 coedge $-1 -1 -1 $-1 $20 $43 $45 $46 forward $12 $-1 #
 -30 coedge $-1 -1 -1 $-1 $47 $41 $20 $31 reversed $48 $-1 #
--31 edge $-1 -1 -1 $-1 $49 0 $50 5 $20 $51 forward @7 unknown T 0 0 5 0 5 5 #
+-31 edge $-1 -1 -1 $-1 $49 0 $50 5.04 $20 $51 forward @7 unknown T 0 0 5.04 0 5.04 5.04 #
 -32 cface $-1 -1 $22 $9 $52 0 #
 -33 cface $-1 -1 $15 $9 $35 0 #
 -34 cface_ptr-ct-attrib $-1 -1 $-1 $-1 $24 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 1 1 1 $-1 $21 #
--35 face $53 -1 -1 $-1 $52 $48 $6 $-1 $54 forward single T 0 0 5 5 5 5 F #
--36 loop $-1 -1 -1 $-1 $-1 $55 $24 T 0 0 0 5 0 5 periphery $37 F #
--37 plane-surface $-1 -1 -1 $-1 2.5 0 0 0 -1 0 1 -0 -0 forward_v I I I I #
+-35 face $53 -1 -1 $-1 $52 $48 $6 $-1 $54 forward single T 0 0 5.04 5.04 5.04 5.04 F #
+-36 loop $-1 -1 -1 $-1 $-1 $55 $24 T 0 0 0 5.04 0 5.04 periphery $37 F #
+-37 plane-surface $-1 -1 -1 $-1 2.52 0 0 0 -1 0 1 -0 -0 forward_v I I I I #
 -38 coedge $-1 -1 -1 $-1 $56 $57 $58 $59 forward $25 $-1 #
 -39 coedge $-1 -1 -1 $-1 $60 $27 $57 $61 reversed $18 $-1 #
 -40 coedge $-1 -1 -1 $-1 $27 $60 $28 $44 forward $18 $-1 #
 -41 coedge $-1 -1 -1 $-1 $30 $58 $27 $42 reversed $48 $-1 #
--42 edge $-1 -1 -1 $-1 $50 0 $62 5 $27 $63 forward @7 unknown T 0 5 5 5 5 5 #
+-42 edge $-1 -1 -1 $-1 $50 0 $62 5.04 $27 $63 forward @7 unknown T 0 5.04 5.04 5.04 5.04 5.04 #
 -43 coedge $-1 -1 -1 $-1 $29 $28 $64 $65 reversed $12 $-1 #
--44 edge $-1 -1 -1 $-1 $66 0 $50 5 $40 $67 forward @7 unknown T 0 5 0 0 5 5 #
+-44 edge $-1 -1 -1 $-1 $66 0 $50 5.04 $40 $67 forward @7 unknown T 0 5.04 0 0 5.04 5.04 #
 -45 coedge $-1 -1 -1 $-1 $68 $55 $29 $46 reversed $36 $-1 #
--46 edge $-1 -1 -1 $-1 $69 0 $49 5 $29 $70 forward @7 unknown T 0 0 0 0 0 5 #
+-46 edge $-1 -1 -1 $-1 $69 0 $49 5.04 $29 $70 forward @7 unknown T 0 0 0 0 0 5.04 #
 -47 coedge $-1 -1 -1 $-1 $58 $30 $55 $71 reversed $48 $-1 #
--48 loop $-1 -1 -1 $-1 $-1 $30 $35 T 0 0 5 5 5 5 periphery $54 F #
+-48 loop $-1 -1 -1 $-1 $-1 $30 $35 T 0 0 5.04 5.04 5.04 5.04 periphery $54 F #
 -49 vertex $-1 -1 -1 $-1 $46 $72 #
 -50 vertex $-1 -1 -1 $-1 $44 $73 #
--51 straight-curve $-1 -1 -1 $-1 0 0 5 0 1 0 I I #
--52 face $74 -1 -1 $-1 $-1 $75 $6 $-1 $76 reversed single T 0 0 0 5 5 0 F #
+-51 straight-curve $-1 -1 -1 $-1 0 0 5.04 0 1 0 I I #
+-52 face $74 -1 -1 $-1 $-1 $75 $6 $-1 $76 reversed single T 0 0 0 5.04 5.04 0 F #
 -53 cface_ptr-ct-attrib $-1 -1 $-1 $-1 $35 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 1 1 1 $-1 $33 #
--54 plane-surface $-1 -1 -1 $-1 2.5 2.5 5 0 0 1 1 0 0 forward_v I I I I #
+-54 plane-surface $-1 -1 -1 $-1 2.52 2.52 5.04 0 0 1 1 0 0 forward_v I I I I #
 -55 coedge $-1 -1 -1 $-1 $45 $77 $47 $71 forward $36 $-1 #
 -56 coedge $-1 -1 -1 $-1 $78 $38 $77 $79 reversed $25 $-1 #
 -57 coedge $-1 -1 -1 $-1 $38 $78 $39 $61 forward $25 $-1 #
 -58 coedge $-1 -1 -1 $-1 $41 $47 $38 $59 reversed $48 $-1 #
--59 edge $-1 -1 -1 $-1 $62 0 $80 5 $38 $81 forward @7 unknown T 5 0 5 5 5 5 #
+-59 edge $-1 -1 -1 $-1 $62 0 $80 5.04 $38 $81 forward @7 unknown T 5.04 0 5.04 5.04 5.04 5.04 #
 -60 coedge $-1 -1 -1 $-1 $40 $39 $82 $83 reversed $18 $-1 #
--61 edge $-1 -1 -1 $-1 $84 0 $62 5 $57 $85 forward @7 unknown T 5 5 0 5 5 5 #
+-61 edge $-1 -1 -1 $-1 $84 0 $62 5.04 $57 $85 forward @7 unknown T 5.04 5.04 0 5.04 5.04 5.04 #
 -62 vertex $-1 -1 -1 $-1 $61 $86 #
--63 straight-curve $-1 -1 -1 $-1 0 5 5 1 0 0 I I #
+-63 straight-curve $-1 -1 -1 $-1 0 5.04 5.04 1 0 0 I I #
 -64 coedge $-1 -1 -1 $-1 $82 $87 $43 $65 forward $75 $-1 #
--65 edge $-1 -1 -1 $-1 $69 0 $66 5 $43 $88 forward @7 unknown T 0 0 0 0 5 0 #
+-65 edge $-1 -1 -1 $-1 $69 0 $66 5.04 $43 $88 forward @7 unknown T 0 0 0 0 5.04 0 #
 -66 vertex $-1 -1 -1 $-1 $83 $89 #
--67 straight-curve $-1 -1 -1 $-1 0 5 0 0 0 1 I I #
+-67 straight-curve $-1 -1 -1 $-1 0 5.04 0 0 0 1 I I #
 -68 coedge $-1 -1 -1 $-1 $77 $45 $87 $90 reversed $36 $-1 #
 -69 vertex $-1 -1 -1 $-1 $90 $91 #
 -70 straight-curve $-1 -1 -1 $-1 0 0 0 0 0 1 I I #
--71 edge $-1 -1 -1 $-1 $80 0 $49 5 $55 $92 forward @7 unknown T 0 0 5 5 0 5 #
--72 point $-1 -1 -1 $-1 0 0 5 #
--73 point $-1 -1 -1 $-1 0 5 5 #
+-71 edge $-1 -1 -1 $-1 $80 0 $49 5.04 $55 $92 forward @7 unknown T 0 0 5.04 5.04 0 5.04 #
+-72 point $-1 -1 -1 $-1 0 0 5.04 #
+-73 point $-1 -1 -1 $-1 0 5.04 5.04 #
 -74 cface_ptr-ct-attrib $-1 -1 $-1 $-1 $52 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 1 1 1 $-1 $32 #
--75 loop $-1 -1 -1 $-1 $-1 $87 $52 T 0 0 0 5 5 0 periphery $76 T #
--76 plane-surface $-1 -1 -1 $-1 2.5 2.5 0 0 0 1 1 0 0 forward_v I I I I #
+-75 loop $-1 -1 -1 $-1 $-1 $87 $52 T 0 0 0 5.04 5.04 0 periphery $76 T #
+-76 plane-surface $-1 -1 -1 $-1 2.52 2.52 0 0 0 1 1 0 0 forward_v I I I I #
 -77 coedge $-1 -1 -1 $-1 $55 $68 $56 $79 forward $36 $-1 #
 -78 coedge $-1 -1 -1 $-1 $57 $56 $93 $94 reversed $25 $-1 #
--79 edge $-1 -1 -1 $-1 $95 0 $80 5 $77 $96 forward @7 unknown T 5 0 0 5 0 5 #
+-79 edge $-1 -1 -1 $-1 $95 0 $80 5.04 $77 $96 forward @7 unknown T 5.04 0 0 5.04 0 5.04 #
 -80 vertex $-1 -1 -1 $-1 $79 $97 #
--81 straight-curve $-1 -1 -1 $-1 5 5 5 0 -1 0 I I #
+-81 straight-curve $-1 -1 -1 $-1 5.04 5.04 5.04 0 -1 0 I I #
 -82 coedge $-1 -1 -1 $-1 $93 $64 $60 $83 forward $75 $-1 #
--83 edge $-1 -1 -1 $-1 $66 0 $84 5 $60 $98 forward @7 unknown T 0 5 0 5 5 0 #
+-83 edge $-1 -1 -1 $-1 $66 0 $84 5.04 $60 $98 forward @7 unknown T 0 5.04 0 5.04 5.04 0 #
 -84 vertex $-1 -1 -1 $-1 $94 $99 #
--85 straight-curve $-1 -1 -1 $-1 5 5 0 0 0 1 I I #
--86 point $-1 -1 -1 $-1 5 5 5 #
+-85 straight-curve $-1 -1 -1 $-1 5.04 5.04 0 0 0 1 I I #
+-86 point $-1 -1 -1 $-1 5.04 5.04 5.04 #
 -87 coedge $-1 -1 -1 $-1 $64 $93 $68 $90 forward $75 $-1 #
 -88 straight-curve $-1 -1 -1 $-1 0 0 0 0 1 0 I I #
--89 point $-1 -1 -1 $-1 0 5 0 #
--90 edge $-1 -1 -1 $-1 $95 0 $69 5 $68 $100 forward @7 unknown T 0 0 0 5 0 0 #
+-89 point $-1 -1 -1 $-1 0 5.04 0 #
+-90 edge $-1 -1 -1 $-1 $95 0 $69 5.04 $68 $100 forward @7 unknown T 0 0 0 5.04 0 0 #
 -91 point $-1 -1 -1 $-1 0 0 0 #
--92 straight-curve $-1 -1 -1 $-1 5 0 5 -1 0 0 I I #
+-92 straight-curve $-1 -1 -1 $-1 5.04 0 5.04 -1 0 0 I I #
 -93 coedge $-1 -1 -1 $-1 $87 $82 $78 $94 forward $75 $-1 #
--94 edge $-1 -1 -1 $-1 $84 0 $95 5 $78 $101 forward @7 unknown T 5 0 0 5 5 0 #
+-94 edge $-1 -1 -1 $-1 $84 0 $95 5.04 $78 $101 forward @7 unknown T 5.04 0 0 5.04 5.04 0 #
 -95 vertex $-1 -1 -1 $-1 $90 $102 #
--96 straight-curve $-1 -1 -1 $-1 5 0 0 0 0 1 I I #
--97 point $-1 -1 -1 $-1 5 0 5 #
--98 straight-curve $-1 -1 -1 $-1 0 5 0 1 0 0 I I #
--99 point $-1 -1 -1 $-1 5 5 0 #
--100 straight-curve $-1 -1 -1 $-1 5 0 0 -1 0 0 I I #
--101 straight-curve $-1 -1 -1 $-1 5 5 0 0 -1 0 I I #
--102 point $-1 -1 -1 $-1 5 0 0 #
+-96 straight-curve $-1 -1 -1 $-1 5.04 0 0 0 0 1 I I #
+-97 point $-1 -1 -1 $-1 5.04 0 5.04 #
+-98 straight-curve $-1 -1 -1 $-1 0 5.04 0 1 0 0 I I #
+-99 point $-1 -1 -1 $-1 5.04 5.04 0 #
+-100 straight-curve $-1 -1 -1 $-1 5.04 0 0 -1 0 0 I I #
+-101 straight-curve $-1 -1 -1 $-1 5.04 5.04 0 0 -1 0 I I #
+-102 point $-1 -1 -1 $-1 5.04 0 0 #
 End-of-ACIS-data 

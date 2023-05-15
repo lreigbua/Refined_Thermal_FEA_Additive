@@ -73,6 +73,8 @@ methods
         obj.lx=obj.component_dimensions(1);
         obj.ly=obj.component_dimensions(2);
         
+        assert( rem(obj.component_dimensions(3),obj.layer_thickness) - 0.0 < 0.000001 , "Component height needs to be divisible by the layer thickness sepcified.")
+        
     end
     function generate_event_series_files(obj)    
 
