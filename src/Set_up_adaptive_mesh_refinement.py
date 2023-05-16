@@ -349,8 +349,8 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         positionMin=position-slice.mesh_refinement+0.001
 
         #set bounding box positions of z
-        positionMax[2]=height_c_top+slice.mesh_refinement+0.001
-        positionMin[2]=height_c_top-slice.mesh_refinement-0.001
+        positionMax[2]=height_c_top+slice.mesh_refinement+0.0000001
+        positionMin[2]=height_c_top-slice.mesh_refinement-0.0000001
 
         # print(height_c_top)
         # print(positionMax)
@@ -530,13 +530,15 @@ class Slice:  #class to store attributes and methods for each slice
 
 Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
 
-# Process.current_height=83*0.06
 
-# for i in range(42,43):
+
+# # for i in range(42,43):
 while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.000001: # Performs Octree mesh generation until it has been done for all layer heights
     print(Process.current_height)
     Process.run()
     Process.current_height=round(Process.current_height+Process.layer_thickness,2)
+
+# Process.current_height=73*0.06
 
 # print(Process.current_height)
 # Process.run()
