@@ -2,8 +2,8 @@
 *Element Progressive Activation, name=ElementProgressiveActivation1, elset=Slice-1-1.Set-1
 *End Assembly
 ** 
-**INCLUDE, INPUT = ABQ_phase_trans_types.inp
-**INCLUDE, INPUT = mat_phase_trans_ti64.inp
+*INCLUDE, INPUT = ../src/ABQ_phase_trans_types.inp
+*INCLUDE, INPUT = ../src/mat_phase_trans_ti64.inp
 *Material, name=NO_TRANS_TI6AL4V
 *Conductivity, dependencies=1
  5.70496,  10.,   0.
@@ -125,12 +125,12 @@ SET-1, 26.
 ** Name: Field-_from_mapping   Type: Temperature
 ***Initial Conditions, type=TEMPERATURE, file=.\Job-layer-2.odb, INTERPOLATE
 ** Name: Field-2   Type: Field
-***Initial Conditions, type=SOLUTION, variable=1
-**comp-1.Set-1, -1., , , , , , ,
-** , , , , , , , , , , , , , ,
-** , , , , , , , , , , , , , ,
-***INITIAL CONDITION, TYPE=FIELD, VARIABLE=1
-**comp-1.Set-1, -1.
+*Initial Conditions, type=SOLUTION, variable=1
+Set-1, -1., , , , , , ,
+ , , , , , , , , , , , , , ,
+ , , , , , , , , , , , , , ,
+*INITIAL CONDITION, TYPE=FIELD, VARIABLE=1
+Set-1, -1.
 **------------------------------------------------
 ** EVENT SERIES TYPE
 ** 
