@@ -23,9 +23,10 @@ for i in range(1,int(n_layers)+1):
     clip = VideoFileClip( "./Video_layer_{}.avi".format(i) ) #5 seconds video
     clips.append(clip)
 
-final_video= concatenate_videoclips(clips, method="compose")
+final_video= concatenate_videoclips(clips)
 
 slowed_video = final_video.fx( vfx.speedx, 0.5)
+resized_video=slowed_video.resize( (1080,720) )
 
-slowed_video.write_videofile("./Merged_Videos.mp4")
+resized_video.write_videofile("./Merged_Videos.mp4")
 
