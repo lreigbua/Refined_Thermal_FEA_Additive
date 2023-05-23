@@ -14,13 +14,14 @@ cd ..\data\
 system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
 total_number_of_layers=read_number_of_layers();
 
+%% Run Abaqus Jobs
 copyfile ../src/INP_default.inp ./INP.txt
 
 
 Process_Generate_toolpath_and_steps = Generate_Toolpath_Event_Series_refinement_class();
 Process_Generate_toolpath_and_steps.read_input_file()
-% for current_layer=42:1:total_number_of_layers
-for current_layer=1:1:total_number_of_layers
+for current_layer=40:1:40
+% for current_layer=1:1:total_number_of_layers
     delete *.lck
     Process_Generate_toolpath_and_steps.current_layer=current_layer;
     Process_Generate_toolpath_and_steps.run();
@@ -36,7 +37,7 @@ for current_layer=1:1:total_number_of_layers
         copyfile ('INP_w_mapping.inp',current_layer_job_name+".inp")
     end
     
-    command = "abaqus job="+ current_layer_job_name + " cpus=32 ask_delete=OFF interactive";
+    command = "abaqus job="+ current_layer_job_name + " cpus=16 user=../src/HETVAL-alpha-thick.f ask_delete=OFF interactive";
     status = system(command)  %Run Abaqus Job in cmd
 
 end
