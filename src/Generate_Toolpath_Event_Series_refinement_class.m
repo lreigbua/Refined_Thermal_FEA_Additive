@@ -14,6 +14,7 @@ properties
     lx=0.96;
     %length in y of rectangle in mm
     ly=0.96;
+    lz;
     %Thickness of each layer
     %layer_thickness=60e-6;
     layer_thickness=0.060;
@@ -30,9 +31,11 @@ properties
     current_layer;
 
     %layers of interest:
-    heights_of_interest=[0.3]
+    heights_of_interest;
 
-    component_dimensions
+    component_dimensions;
+
+    last_layer;
 
     
     %arrays to measure how long and scanning takes to define appropiate time step lengths      
@@ -41,6 +44,11 @@ properties
 
     number_of_refinements
     component_geometry_path
+
+    time_per_bead;
+    time_before_mid_bead;
+    high_resolution_only_one_bead;
+    
 end
 
 methods
@@ -66,14 +74,21 @@ methods
         obj.Laser_Speed=struct_output.Laser_Speed;
         obj.dosing_time=struct_output.dosing_time;
         obj.inter_layer_time=struct_output.inter_layer_time;
+        obj.high_resolution_only_one_bead=struct_output.high_resolution_only_one_bead;
         obj.component_dimensions=struct_output.component_dimensions;
         obj.heights_of_interest = cellfun(@double,cell(obj.heights_of_interest));
         obj.component_dimensions = cellfun(@double,cell(obj.component_dimensions));
+        
+
+        
 
         obj.lx=obj.component_dimensions(1);
         obj.ly=obj.component_dimensions(2);
+        obj.lz=obj.component_dimensions(3);
+
+        obj.last_layer=round(obj.lz/obj.layer_thickness);
         
-        assert( rem(obj.component_dimensions(3),obj.layer_thickness) - 0.0 < 0.000001 , "Component height needs to be divisible by the layer thickness sepcified.")
+        assert( rem(obj.component_dimensions(3),obj.layer_thickness) - 0.0 < 0.000001 , "Component height needs to be divisible by the layer thickness specified.")
         
     end
     function generate_event_series_files(obj)    
@@ -98,7 +113,8 @@ methods
          
         
         n=2;
-        k=2;    
+        k=2;
+        flg=0;
         for layer=obj.current_layer:1:obj.nlayers
             
         
@@ -167,9 +183,21 @@ methods
                             p(n)=obj.Laser_Power;
                             n=n+1;
                     end
+                
+
+                    if y(n-1)>obj.ly/2 && flg==0
+                        flg=1;
+
+                        obj.time_per_bead = time(n-1)-time(n-3);
+                        obj.time_before_mid_bead = time(n-3);
+
+                    end
             
             
                 end
+                
+                
+                
         else
             for i=1:1:(obj.lx/(2*obj.hatch_spacing)+1)%npasseslayer
                 sc=obj.hatch_spacing;
@@ -221,8 +249,16 @@ methods
                         p(n)=obj.Laser_Power;
                         n=n+1;
                 end
-        
-        
+
+
+                if x(n-1)>obj.lx/2 && flg==0
+                    flg=1;
+
+                    obj.time_per_bead = time(n-1)-time(n-3);
+                    obj.time_before_mid_bead = time(n-3);
+
+                end
+    
             end
         
         end
@@ -286,6 +322,8 @@ methods
         delete 'Event_series_Heat_mm.csv'
         delete 'Event_series_Roller_mm.csv'
     end
+
+
     function generate_steps_file(obj)
         %Generate STEPs INP
         
@@ -320,7 +358,7 @@ methods
         '** \n'...
         '** OUTPUT REQUESTS\n'...
         '**\n'... 
-        '*Restart, write, frequency=1\n'...
+        '*Restart, write, frequency=0\n'...
         '**\n'...
         '** FIELD OUTPUT: F-Output-2\n'...
         '**\n'...
@@ -339,7 +377,7 @@ methods
         
         fileID = fopen('Steps.txt','w');
         %specify frequency of outputs
-        freq=', number interval=2';  % number of times field is output in this step
+        freq='';  % number of times field is output in this step
 %         freq_scan=', number interval=50';
         freq_scan='';
         %%
@@ -350,6 +388,7 @@ methods
                 top_height=top_height+0.001;
             end
             layers_of_interest(i)=round(top_height,2)/obj.layer_thickness;
+            layers_of_interest(i)=round(layers_of_interest(i))
         end
         
         HO_text=[
@@ -366,68 +405,92 @@ methods
                 HO_all=append(HO_all,sprintf(HO_text,layers_of_interest(i),layers_of_interest(i)));
             end
         end
+        
         %
+        time_mark_text=[
+        '*TIME POINTS, NAME=LASERON, GENERATE\n'...
+        '0.0, %f, %f \n'...
+        '%f, %f, 0.001 \n'...
+        '%f, %f, %f \n'...
+        ];
+
+
         
         stepN=1;
         for i=obj.current_layer:1:obj.nlayers
-            
+            tscan=obj.time_of_scanning(i);
+           
+
             if ismember(i,layers_of_interest)
-        %     tscan=timemat(4)-timemat(2);
-            tscan=obj.time_of_scanning(i);
+                
             
-            %prints rolling step
-            fprintf(fileID,text,stepN,stepN,obj.dosing_time/4, obj.dosing_time, obj.dosing_time/4, freq,HO_all);
-            %prints scanning step
-            fprintf(fileID,text,stepN+1,stepN+1,0.001, tscan, 0.001,freq_scan,HO_all);
-            %prints short increment cooling step
-            fprintf(fileID,text,stepN+2,stepN+2,0.001, 0.2, 0.001,freq_scan,HO_all);
-            %prints resting step
-            fprintf(fileID,text,stepN+3,stepN+3,1.0, obj.inter_layer_time, 1.0, freq,HO_all);
-            stepN=stepN+3;
-            
+                if obj.high_resolution_only_one_bead == "yes"
+
+                    freq_scan = ", TIME POINTS=LASERON, TIME MARKS=YES";
+                    slow_time = obj.time_per_bead;
+                    %prints time marks on top:
+                    fprintf(fileID, time_mark_text, obj.time_before_mid_bead-obj.dosing_time, slow_time, obj.time_before_mid_bead-obj.dosing_time, obj.time_before_mid_bead-obj.dosing_time+obj.time_per_bead, obj.time_before_mid_bead-obj.dosing_time+obj.time_per_bead, tscan, slow_time);
+                    scan_increment=obj.time_per_bead;
+
+                else
+                    scan_increment=0.001;
+                end
+    
+                %prints rolling step
+                fprintf(fileID,text,stepN,stepN,obj.dosing_time/4, obj.dosing_time, obj.dosing_time/4, freq,HO_all);
+                %prints scanning step
+                fprintf(fileID,text,stepN+1,stepN+1, scan_increment, tscan, scan_increment,freq_scan,HO_all);
+                %prints short increment cooling step
+                fprintf(fileID,text,stepN+2,stepN+2, scan_increment, 0.2, scan_increment,'',HO_all);
+                %prints resting step
+                fprintf(fileID,text,stepN+3,stepN+3,1.0, obj.inter_layer_time, 1.0, freq,HO_all);
+                stepN=stepN+3;
+                
             else
-            tscan=obj.time_of_scanning(i);
             
-            %prints rolling step
-            fprintf(fileID,text,stepN,stepN,obj.dosing_time/4, obj.dosing_time, obj.dosing_time/4, freq, HO_all);
-            %prints scanning step
-            fprintf(fileID,text,stepN+1,stepN+1,tscan/4, tscan, tscan/4, freq, HO_all);
-            %prints short increment cooling step
-            fprintf(fileID,text,stepN+2,stepN+2, 0.2, 0.2, 0.2, freq, HO_all);
-            %prints resting step
-            fprintf(fileID,text,stepN+3,stepN+3,1.0, obj.inter_layer_time, 1.0, freq, HO_all);
-            stepN=stepN+3;
-            
+                %prints rolling step
+                fprintf(fileID,text,stepN,stepN,obj.dosing_time/4, obj.dosing_time, obj.dosing_time/4, freq, HO_all);
+                %prints scanning step
+                fprintf(fileID,text,stepN+1,stepN+1,tscan/4, tscan, tscan/4, freq, HO_all);
+                %prints short increment cooling step
+                fprintf(fileID,text,stepN+2,stepN+2, 0.2, 0.2, 0.2, freq, HO_all);
+                %prints resting step
+                fprintf(fileID,text,stepN+3,stepN+3,1.0, obj.inter_layer_time, 1.0, freq, HO_all);
+                stepN=stepN+3;
+                
             end
         
         end
         
-%         %Add final, long cooling step
-%         text_cooling_step=['** ----------------------------------------------------------------\n'...
-%         '*STEP, name=Cooling, INC=10000\n'...
-%         '*HEAT TRANSFER\n'...
-%         '1.,60., ,\n'...
-%         '**\n'...
-%         '** OUTPUT REQUESTS\n'...
-%         '**\n'...
-%         '*Restart, write, frequency=0\n'...
-%         '**\n'...
-%         '** FIELD OUTPUT: F-Output-2\n'...
-%         '**\n'...
-%         '*OUTPUT,FIELD, number interval=10\n'...
-%         '*Element Output, directions=YES\n'...
-%         'SDV\n'...
-%         '**\n'...
-%         '** FIELD OUTPUT: F-Output-1\n'...
-%         '**\n'...
-%         '*Node Output\n'...
-%         'NT\n'...
-%         '%s'...
-%         '*Activate elements, activation=ElementProgressiveActivation1, expansion time constant=2.\n'...
-%         '"ABQ_AM.Material Input"\n'...
-%         '*END STEP\n'];
-%         
-%         fprintf(fileID, text_cooling_step, HO_all);
+        if obj.current_layer==obj.last_layer
+        
+            %Add final, long cooling step
+            text_cooling_step=['** ----------------------------------------------------------------\n'...
+            '*STEP, name=Cooling, INC=10000\n'...
+            '*HEAT TRANSFER\n'...
+            '1.,60., ,\n'...
+            '**\n'...
+            '** OUTPUT REQUESTS\n'...
+            '**\n'...
+            '*Restart, write, frequency=0\n'...
+            '**\n'...
+            '** FIELD OUTPUT: F-Output-2\n'...
+            '**\n'...
+            '*OUTPUT,FIELD, number interval=10\n'...
+            '*Element Output, directions=YES\n'...
+            'SDV\n'...
+            '**\n'...
+            '** FIELD OUTPUT: F-Output-1\n'...
+            '**\n'...
+            '*Node Output\n'...
+            'NT\n'...
+            '%s'...
+            '*Activate elements, activation=ElementProgressiveActivation1, expansion time constant=2.\n'...
+            '"ABQ_AM.Material Input"\n'...
+            '*END STEP\n'];
+            
+            fprintf(fileID, text_cooling_step, HO_all);
+        end
         
         
         
