@@ -51,6 +51,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
     layer_thickness=dict_var_of_json['layer_thickness']
     number_of_refinements=dict_var_of_json['number_of_refinements']
     heights_of_interest=dict_var_of_json['heights_of_interest']
+    heights_of_interest.sort(reverse=True) #sorts form high to low
     component_geometry_path=dict_var_of_json['component_geometry_path']
     substrate_dimensions = dict_var_of_json['substrate_dimensions']
 
@@ -85,7 +86,6 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         self.current_height=self.layer_thickness
         
 
-
     def import_initial_geometry(self):
         # Import geometry file of component as a part named comp:
         mdb.openAcis(
@@ -93,51 +93,53 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
             , scaleFromFile=OFF)
         mdb.models['main'].PartFromGeometryFile(combine=False, dimensionality=THREE_D, geometryFile=mdb.acis, name='Comp', type=DEFORMABLE_BODY)
 
+
     def calculate_slices_heights(self): #Calculates the heights of the different slices according to the number of refinements specified
 
         self.slices_array = []
         flag=0
 
+        slice_key=0
         for n in range (0,self.number_of_refinements):
             self.slices_array.append(Slice())
 
             if n == 0:  #top layer (current scanning), we want one voxel with layer height
-                self.slices_array[n].height_top=self.current_height
-                self.slices_array[n].height_bot=self.slices_array[n].height_top-self.layer_thickness
-                self.slices_array[n].mesh_refinement = self.layer_thickness
+                self.slices_array[slice_key].height_top=self.current_height
+                self.slices_array[slice_key].height_bot=self.slices_array[slice_key].height_top-self.layer_thickness
+                self.slices_array[slice_key].mesh_refinement = self.layer_thickness
 
             elif n == 1: # next two layers, we still want high resolution
                 # check if current layer build height has been reached
                 max_possible_slice_thickness = self.layer_thickness * 2
                 current_possible_slice_thickness = max_possible_slice_thickness
-                while ((current_possible_slice_thickness + (self.current_height - self.slices_array[n-1].height_bot)) > (self.current_height + 0.000001)):
+                while ((current_possible_slice_thickness + (self.current_height - self.slices_array[slice_key-1].height_bot)) > (self.current_height + 0.000001)):
                     current_possible_slice_thickness = current_possible_slice_thickness - self.layer_thickness
 
                 if abs(current_possible_slice_thickness) - 0.0 <= 0.000001: break
 
-                self.slices_array[n].height_top = self.slices_array[n-1].height_bot
-                self.slices_array[n].height_bot = self.slices_array[n].height_top-current_possible_slice_thickness
-                self.slices_array[n].mesh_refinement = self.layer_thickness #We keep the same mesh refinement as top layers
+                self.slices_array[slice_key].height_top = self.slices_array[slice_key-1].height_bot
+                self.slices_array[slice_key].height_bot = self.slices_array[slice_key].height_top-current_possible_slice_thickness
+                self.slices_array[slice_key].mesh_refinement = self.layer_thickness #We keep the same mesh refinement as top layers
 
             elif n < self.number_of_refinements-1: #the resolution keeps increasing accordingly
                 # check if current layer build height has been reached
                 max_possible_slice_thickness = self.layer_thickness * 2**(n-1)
                 current_possible_slice_thickness = max_possible_slice_thickness
-                while ((current_possible_slice_thickness + self.current_height - self.slices_array[n-1].height_bot) > (self.current_height + 0.000001)):
+                while ((current_possible_slice_thickness + self.current_height - self.slices_array[slice_key-1].height_bot) > (self.current_height + 0.000001)):
                     current_possible_slice_thickness=current_possible_slice_thickness-self.layer_thickness
 
                 if abs(current_possible_slice_thickness) - 0.0 <= 0.000001: break
 
-                self.slices_array[n].height_top = self.slices_array[n-1].height_bot
-                self.slices_array[n].height_bot = self.slices_array[n].height_top-current_possible_slice_thickness
-                self.slices_array[n].mesh_refinement = self.layer_thickness * 2**(n-1)
+                self.slices_array[slice_key].height_top = self.slices_array[slice_key-1].height_bot
+                self.slices_array[slice_key].height_bot = self.slices_array[slice_key].height_top-current_possible_slice_thickness
+                self.slices_array[slice_key].mesh_refinement = self.layer_thickness * 2**(n-1)
 
             elif n == self.number_of_refinements-1: #if we have reached max resolution, we will use this until the bottom of the current height
-                current_possible_slice_thickness = self.current_height - (self.current_height - self.slices_array[n-1].height_bot) #since we have reached the last refinement, now the maximum thickness is the rest of the current height left
+                current_possible_slice_thickness = self.current_height - (self.current_height - self.slices_array[slice_key-1].height_bot) #since we have reached the last refinement, now the maximum thickness is the rest of the current height left
 
-                self.slices_array[n].height_top = self.slices_array[n-1].height_bot
-                self.slices_array[n].height_bot = self.slices_array[n].height_top-current_possible_slice_thickness
-                self.slices_array[n].mesh_refinement = self.layer_thickness * 2**(n-1)
+                self.slices_array[slice_key].height_top = self.slices_array[slice_key-1].height_bot
+                self.slices_array[slice_key].height_bot = self.slices_array[slice_key].height_top-current_possible_slice_thickness
+                self.slices_array[slice_key].mesh_refinement = self.layer_thickness * 2**(n-1)
 
             if n==0 or n==1:
                 c=0
@@ -148,7 +150,65 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
                         c+=1
                 
                 if c == len(self.heights_of_interest):
-                    self.slices_array[n].mesh_refinement*=2
+                    self.slices_array[slice_key].mesh_refinement*=2
+
+            #This is to slice layer of interest that have already been printed
+            if n!=0:
+                for height in self.heights_of_interest:
+                    
+                    lay_of_interest_height_top=closest_layer_height(height)
+                    
+                    
+                    #if layer of interest is at the top of this refinement slice
+                    if abs(lay_of_interest_height_top - self.slices_array[slice_key].height_top) < 0.000001: 
+                        
+                        self.slices_array[slice_key].height_bot = lay_of_interest_height_top - self.layer_thickness
+                        self.slices_array[slice_key].is_layer_of_interest = True
+
+                        if abs(self.slices_array[slice_key].height_bot - 0.0) > 0.000001:  #if we are not at the bottom already
+                            slice_key+=1 #increases number of slices
+                            self.slices_array.append(Slice())
+                            self.slices_array[slice_key].height_top = self.slices_array[slice_key-1].height_bot
+                            self.slices_array[slice_key].height_bot = self.slices_array[slice_key-1].height_top-current_possible_slice_thickness
+                            self.slices_array[slice_key].mesh_refinement = self.slices_array[slice_key-1].mesh_refinement
+
+                    #if layer of interest is at the top of this refinement slice
+                    elif lay_of_interest_height_top < (self.slices_array[slice_key].height_top - 0.000001) and lay_of_interest_height_top > (self.slices_array[slice_key].height_bot + 0.000001) : #if layer is at the top of this refinement slice
+                        
+                        #top part of slice
+                        self.slices_array[slice_key].top = self.slices_array[slice_key-1].height_bot
+                        self.slices_array[slice_key].height_bot = lay_of_interest_height_top
+
+                        #layer of interest
+                        slice_key+=1 #increases number of slices
+                        self.slices_array.append(Slice())
+                        self.slices_array[slice_key].height_top = self.slices_array[slice_key-1].height_bot
+                        self.slices_array[slice_key].height_bot = self.slices_array[slice_key].height_top-self.layer_thickness
+                        self.slices_array[slice_key].mesh_refinement = self.slices_array[slice_key-1].mesh_refinement
+                        self.slices_array[slice_key].is_layer_of_interest = True
+
+
+                        
+
+                        #bot part of slice
+                        if abs(self.slices_array[slice_key].height_bot - 0.0) > 0.000001:  #if we are not at the bottom already
+                            
+                            
+                            
+                            slice_key+=1 #increases number of slices
+                            self.slices_array.append(Slice())
+                            self.slices_array[slice_key].height_top = self.slices_array[slice_key-1].height_bot
+                            self.slices_array[slice_key].height_bot = self.slices_array[slice_key-2].height_top-current_possible_slice_thickness
+                            self.slices_array[slice_key].mesh_refinement = self.slices_array[slice_key-2].mesh_refinement
+                            self.slices_array[slice_key].is_layer_of_interest = False
+
+                            print(self.slices_array[slice_key].height_top)
+                 
+
+            slice_key+=1
+
+                    
+
 
 
 
@@ -171,7 +231,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
                 slice.ID = str(i)
                 slice.Create_Slice_Instance() #Cuts the given slice out from the CAD file
 
-                if slice == self.slices_array[0]: #if this is the top slice
+                if slice == self.slices_array[0] or slice.is_layer_of_interest: #if this is the top slice
                     assign_section_to_part('Slice-'+slice.ID,'Section-ABQ_PHASE_TRANS_TI6AL4V')
                 else:
                     assign_section_to_part('Slice-'+slice.ID,'Section-NO_TRANS_TI6AL4V')
@@ -451,6 +511,7 @@ class Slice:  #class to store attributes and methods for each slice
         self.offset_datum_of_plane=Octree_mesh_generation.offset_datum_of_plane
         self.material_name = Octree_mesh_generation.material_names_list[0]
         self.ID = 'x'
+        self.is_layer_of_interest = False
 
         assert self.height_top > self.height_bot, "height_top should be higher than height_bot'"
 
@@ -538,16 +599,16 @@ class Slice:  #class to store attributes and methods for each slice
 
 
 
+# Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
+
+# while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.000001: # Performs Octree mesh generation until it has been done for all layer heights
+#     print(Process.current_height)
+#     Process.run()
+#     Process.current_height=round(Process.current_height+Process.layer_thickness,2)
+
+
 Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
+Process.current_height=2.7
 
-while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.000001: # Performs Octree mesh generation until it has been done for all layer heights
-    print(Process.current_height)
-    Process.run()
-    Process.current_height=round(Process.current_height+Process.layer_thickness,2)
-
-
-
-# Process.current_height=80*0.06
-
-# Process.run()
-# Process.current_height=round(Process.current_height+Process.layer_thickness,2)
+Process.run()
+Process.current_height=round(Process.current_height+Process.layer_thickness,2)
