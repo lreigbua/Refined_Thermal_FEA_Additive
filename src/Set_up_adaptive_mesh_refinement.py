@@ -172,7 +172,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
                 slice.Create_Slice_Instance() #Cuts the given slice out from the CAD file
 
                 if slice == self.slices_array[0]: #if this is the top slice
-                    assign_section_to_part('Slice-'+slice.ID,'Section-NO_TRANS_TI6AL4V')
+                    assign_section_to_part('Slice-'+slice.ID,'Section-ABQ_PHASE_TRANS_TI6AL4V')
                 else:
                     assign_section_to_part('Slice-'+slice.ID,'Section-NO_TRANS_TI6AL4V')
             else:
@@ -342,7 +342,10 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
 
         height_c_top=round(height_c_top,2)
 
-        position=np.array([self.component_dimensions[0]/2,self.component_dimensions[1]/2,height_c_top])
+        # position=np.array([self.component_dimensions[0]/2,self.component_dimensions[1]/2,height_c_top])
+
+        position=np.array([slice.mesh_refinement/2,slice.mesh_refinement/2,height_c_top])
+        
 
         #set bounding box positions of x and y
         positionMax=position+slice.mesh_refinement+0.001
@@ -350,7 +353,8 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
 
         #set bounding box positions of z
         positionMax[2]=height_c_top+slice.mesh_refinement+0.0000001
-        positionMin[2]=height_c_top-slice.mesh_refinement-0.0000001
+        # positionMin[2]=height_c_top-slice.mesh_refinement-0.0000001
+        positionMin[2]=height_c_top-slice.mesh_refinement*1.1-0.0000001
 
         # print(height_c_top)
         # print(positionMax)
@@ -383,11 +387,11 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
 
         #set bounding box positions of x and y
         positionMax=position+slice.mesh_refinement-0.000001
-        positionMin=position-slice.mesh_refinement+0.000001
+        positionMin=position-slice.mesh_refinement-0.000001
 
         #set bounding box positions of z
         positionMax[2]=height_c_top+slice.mesh_refinement-0.000001
-        positionMin[2]=height_c_top-slice.mesh_refinement+0.000001
+        positionMin[2]=height_c_top-0.000001
 
         # print(height_c_top)
         # print(positionMax)
@@ -481,6 +485,12 @@ class Slice:  #class to store attributes and methods for each slice
         #Mesh part
         mdb.models['main'].parts['Slice-'+self.ID].seedPart(deviationFactor=0.1,
         minSizeFactor=0.1, size=self.mesh_refinement)
+
+        #set mesh controls
+        mdb.models['main'].parts['Slice-'+self.ID].setMeshControls(algorithm=MEDIAL_AXIS, 
+        elemShape=HEX_DOMINATED, regions=
+        mdb.models['main'].parts['Slice-'+self.ID].cells)
+
         mdb.models['main'].parts['Slice-'+self.ID].generateMesh()
 
 
@@ -530,16 +540,14 @@ class Slice:  #class to store attributes and methods for each slice
 
 Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
 
-
-
-# # for i in range(42,43):
 while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.000001: # Performs Octree mesh generation until it has been done for all layer heights
     print(Process.current_height)
     Process.run()
     Process.current_height=round(Process.current_height+Process.layer_thickness,2)
 
-# Process.current_height=73*0.06
 
-# print(Process.current_height)
+
+# Process.current_height=80*0.06
+
 # Process.run()
 # Process.current_height=round(Process.current_height+Process.layer_thickness,2)
