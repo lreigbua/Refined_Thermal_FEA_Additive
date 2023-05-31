@@ -7,6 +7,8 @@ function add_mapping(layer)
     f=fread(fid);
     fclose(fid);
     f = strrep(f,"***Initial Conditions, type=TEMPERATURE, file=.\Job-layer-2.odb, INTERPOLATE","*Initial Conditions, type=TEMPERATURE, file=.\Job-layer-"+previous_layer+".odb, INTERPOLATE");
+%     f = strrep(f,"**MAP SOLUTION","*MAP SOLUTION");
+
     fid  = fopen('INP_w_mapping.inp','w');
     fprintf(fid,'%s',f);
     fclose(fid);

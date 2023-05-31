@@ -13,9 +13,8 @@ input_file_struct = read_input_file();
 mkdir("../"+input_file_struct.output_folder_name)
 cd("../"+input_file_struct.output_folder_name)
 
-%%
 % Run Python Script to generate refined meshes for all layers:
-% system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
+system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
 
 
 %% Run Abaqus Jobs
@@ -26,8 +25,8 @@ total_number_of_layers=data_file_struct.total_number_of_layers;
 Process_Generate_toolpath_and_steps = Generate_Toolpath_Event_Series_refinement_class();
 Process_Generate_toolpath_and_steps.read_input_file()
 
-for current_layer=15:1:15
-% for current_layer=1:1:total_number_of_layers
+% for current_layer=2:1:2
+for current_layer=1:1:total_number_of_layers
     delete *.lck
     Process_Generate_toolpath_and_steps.current_layer=current_layer;
     Process_Generate_toolpath_and_steps.run();

@@ -388,7 +388,7 @@ methods
                 top_height=top_height+0.001;
             end
             layers_of_interest(i)=round(top_height,2)/obj.layer_thickness;
-            layers_of_interest(i)=round(layers_of_interest(i))
+            layers_of_interest(i)=round(layers_of_interest(i));
         end
         
         HO_text=[
@@ -396,7 +396,7 @@ methods
         '**\n' ...
         '*Output, history\n'...
         '*Element Output, elset=SET-HO-layer-%i\n'...
-        'TEMP, SDV\n' ...
+        'TEMP\n' ...
         ];
         
         HO_all='';
