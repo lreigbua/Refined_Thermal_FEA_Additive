@@ -1,7 +1,7 @@
 {
 "layer_thickness" : 0.06,
 "number_of_refinements" : 5,
-"heights_of_interest": [0.06],
+"heights_of_interest": [0.06, 0.3, 0.6],
 "substrate_dimensions" : [80.64,80.64,9.6],
 "Laser_Power" : 375000.0,
 "Laser_Speed" : 1029.0,
@@ -9,6 +9,6 @@
 "dosing_time" : 0.2,
 "inter_layer_time" : 8.0,
 "high_resolution_only_one_bead": "yes",
-"component_geometry_path" : "../input/cube_with_holes_2.sat",
+"component_geometry_path" : "../input/cube_5mm_06height.sat",
 "output_folder_name": "data_keep_layers_of_interest"
 }

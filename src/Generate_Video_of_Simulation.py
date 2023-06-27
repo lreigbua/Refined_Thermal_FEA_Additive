@@ -3,7 +3,7 @@ import json
 import os
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
-os.chdir("../data_09_mm/")
+os.chdir("../data_paper_XRD/")
 
 file = open('.\jsonData.json', 'r')
 dict_var_of_json = json.load(file)
