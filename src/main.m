@@ -29,7 +29,7 @@ Process_Generate_toolpath_and_steps.read_input_file()
 for current_layer=1:1:total_number_of_layers
     delete *.lck
     Process_Generate_toolpath_and_steps.current_layer=current_layer;
-    Process_Generate_toolpath_and_steps.run();
+    Process_Generate_toolpath_and_steps.run(); %Generates toolpath for this layer
     Create_Assembly_INP("layer-"+Process_Generate_toolpath_and_steps.nlayers+".inp")
     
 

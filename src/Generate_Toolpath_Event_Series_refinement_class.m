@@ -67,6 +67,7 @@ methods
         
         %specify object attributes
         obj.layer_thickness=struct_output.layer_thickness;
+        obj.hatch_spacing=struct_output.hatch_spacing;
         obj.number_of_refinements=struct_output.number_of_refinements;
         obj.heights_of_interest=struct_output.heights_of_interest;
         obj.component_geometry_path=struct_output.component_geometry_path;
@@ -133,65 +134,68 @@ methods
         
         
         
-        if is_even(layer)
+        if is_even(layer) || obj.component_dimensions(2)<=obj.hatch_spacing*2 
                 for i=1:1:(obj.ly/(2*obj.hatch_spacing)+1)%npasseslayer
-                    sc=obj.hatch_spacing;
-          
-            %Start Square Contour
-            
-            %Increase x
-                    x(n)=obj.lx-obj.hatch_spacing;
-                    y(n)=y(n-1);    
-                    %Calculate z
-                    z(n)=(layer)*obj.layer_thickness;
-                    %Calculate time during layer
-                    time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
-                    %Appobj.ly obj.Laser_Power
-                    p(n)=0;
-                    n=n+1;
-            
-                %Increase y
-                    x(n)=obj.lx-obj.hatch_spacing;
-                    y(n)=y(n-1)+sc;    
-                    %Calculate z
-                    z(n)=(layer)*obj.layer_thickness;
-                    %Calculate time during layer
-                    time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
-                    %Appobj.ly obj.Laser_Power
-                    p(n)=obj.Laser_Power;
-                    n=n+1;
-            
-                %Decrease x
-                    x(n)=obj.hatch_spacing;
-                    y(n)=y(n-1);    
-                    %Calculate z
-                    z(n)=(layer)*obj.layer_thickness;
-                    %Calculate time during layer
-                    time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
-                    %Appobj.ly obj.Laser_Power
-                    p(n)=0;
-                    n=n+1;
-                    if (i <= ((obj.ly-obj.hatch_spacing)/(2*obj.hatch_spacing))) %if it's not the last scan
-                    %Increase y again
-                            x(n)=obj.hatch_spacing;
-                            y(n)=y(n-1)+sc;    
-                            %Calculate z
-                            z(n)=(layer)*obj.layer_thickness;
-                            %Calculate time during layer
-                            time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
-                            %Appobj.ly obj.Laser_Power
-                            p(n)=obj.Laser_Power;
-                            n=n+1;
-                    end
+                        sc=obj.hatch_spacing;
+              
+                %Start Square Contour
                 
+                %Increase x
+                        x(n)=obj.lx-obj.hatch_spacing;
+                        y(n)=y(n-1);    
+                        %Calculate z
+                        z(n)=(layer)*obj.layer_thickness;
+                        %Calculate time during layer
+                        time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
+                        %Appobj.ly obj.Laser_Power
+                        p(n)=0;
+                        n=n+1;
+            
+                if y(n-1)+obj.hatch_spacing > obj.component_dimensions(2)
 
-                    if y(n-1)>obj.ly/2 && flg==0
-                        flg=1;
-
-                        obj.time_per_bead = time(n-1)-time(n-3);
-                        obj.time_before_mid_bead = time(n-3);
-
-                    end
+                    %Increase y
+                        x(n)=obj.lx-obj.hatch_spacing;
+                        y(n)=y(n-1)+sc;    
+                        %Calculate z
+                        z(n)=(layer)*obj.layer_thickness;
+                        %Calculate time during layer
+                        time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
+                        %Appobj.ly obj.Laser_Power
+                        p(n)=obj.Laser_Power;
+                        n=n+1;
+                
+                    %Decrease x
+                        x(n)=obj.hatch_spacing;
+                        y(n)=y(n-1);    
+                        %Calculate z
+                        z(n)=(layer)*obj.layer_thickness;
+                        %Calculate time during layer
+                        time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
+                        %Appobj.ly obj.Laser_Power
+                        p(n)=0;
+                        n=n+1;
+                        if (i <= ((obj.ly-obj.hatch_spacing)/(2*obj.hatch_spacing))) %if it's not the last scan
+                        %Increase y again
+                                x(n)=obj.hatch_spacing;
+                                y(n)=y(n-1)+sc;    
+                                %Calculate z
+                                z(n)=(layer)*obj.layer_thickness;
+                                %Calculate time during layer
+                                time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
+                                %Appobj.ly obj.Laser_Power
+                                p(n)=obj.Laser_Power;
+                                n=n+1;
+                        end
+                    
+    
+                        if y(n-1)>obj.ly/2 && flg==0
+                            flg=1;
+    
+                            obj.time_per_bead = time(n-1)-time(n-3);
+                            obj.time_before_mid_bead = time(n-3);
+    
+                        end
+                end
             
             
                 end
