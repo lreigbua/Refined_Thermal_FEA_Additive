@@ -5,9 +5,11 @@
 "substrate_dimensions" : [80.64,80.64,9.6],
 "Laser_Power" : 375000.0,
 "Laser_Speed" : 1029.0,
+"jump_speed" : 2000.0,
 "hatch_spacing" : 0.12,
 "dosing_time" : 0.2,
 "inter_layer_time" : 8.0,
+"offset" : 0.05,
 "high_resolution_only_one_bead": "yes",
 "component_geometry_path" : "../input/cube_with_holes_2.sat",
 "output_folder_name": "data_keep_layers_of_interest"

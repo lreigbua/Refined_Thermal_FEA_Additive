@@ -16,6 +16,9 @@ cd("../"+input_file_struct.output_folder_name)
 %% Run Python Script to generate refined meshes for all layers:
 system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
 
+%% Run Python Script to generate toolpaths from mtt file
+
+
 
 %% Run Abaqus Jobs
 copyfile ../src/INP_default.inp ./INP.txt

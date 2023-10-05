@@ -440,3 +440,7 @@ data_09_mm/
 data_big/
 data_keep_layers_of_interest/
 data_paper_XRD/
+src/Event_series_layer_1.txt
+src/Generate_scanpath_from_mtt.ipynb
+plot_paths.mlx
+input/FourBlocks-RBV-60Microns.mtt
