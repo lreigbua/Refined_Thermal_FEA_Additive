@@ -13,11 +13,13 @@ input_file_struct = read_input_file();
 mkdir("../"+input_file_struct.output_folder_name)
 cd("../"+input_file_struct.output_folder_name)
 
-%% Run Python Script to generate refined meshes for all layers:
-system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
 
 %% Run Python Script to generate toolpaths from mtt file
+system('conda activate AM_Sims && python ../src/Generate_scanpath_from_mtt.py')
 
+
+%% Run Python Script to generate refined meshes for all layers:
+system('abaqus cae noGUI=../src/Set_up_adaptive_mesh_refinement.py')
 
 
 %% Run Abaqus Jobs

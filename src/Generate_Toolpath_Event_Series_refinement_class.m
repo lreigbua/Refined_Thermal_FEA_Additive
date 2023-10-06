@@ -3,34 +3,20 @@
 classdef Generate_Toolpath_Event_Series_refinement_class < handle
 
 properties
-    %Use International Units
-    %Laser speed (assumed constant)
-    % Laser_Speed=600;
     Laser_Speed;
-    %Scan Spacing/ hatch hatch_spacingcing (distance between laser paths in same layer)
-    % hatch_spacing=0.10;
     hatch_spacing=0.12;
-    %length in x of rectangle in mm
     lx=0.96;
-    %length in y of rectangle in mm
     ly=0.96;
     lz;
-    %Thickness of each layer
-    %layer_thickness=60e-6;
     layer_thickness=0.060;
     %Power
-    %Laser_Power=120000; %Watts
     Laser_Power=375000; %Watts
     %Roller time
     dosing_time=0.2;
-    %Time to rest for recoating
-    %inter_layer_time=30.2; 
     inter_layer_time=1-0.2; %substract dosing_time
-    %initial laye
     nlayers;
     current_layer;
 
-    %layers of interest:
     heights_of_interest;
 
     component_dimensions;
@@ -92,241 +78,6 @@ methods
         assert( rem(obj.component_dimensions(3),obj.layer_thickness) - 0.0 < 0.000001 , "Component height needs to be divisible by the layer thickness specified.")
         
     end
-    function generate_event_series_files(obj)    
-
-        %initial layer
-        obj.nlayers=obj.current_layer;
-    
-        timemat(1)=0;
-        xmat(1)=0;
-        ymat(1)=obj.ly/2;
-        zmat(1)=obj.layer_thickness*obj.current_layer;
-        mat(1)=1;
-        
-        time(1)=obj.dosing_time;
-        x(1)=obj.hatch_spacing;
-        y(1)=obj.hatch_spacing;
-        z(1)=obj.layer_thickness*obj.current_layer;
-        p(1)=obj.Laser_Power;
-             
-        %%
-        % Calculate x and y for each layer
-         
-        
-        n=2;
-        k=2;
-        flg=0;
-        for layer=obj.current_layer:1:obj.nlayers
-            
-        
-            if layer ~= obj.current_layer
-                timemat(k)=time(n-1)-obj.inter_layer_time;
-            else
-                timemat(k)=obj.dosing_time;
-            end
-            xmat(k)=obj.lx;
-            ymat(k)=obj.ly/2;
-            zmat(k)=(layer)*obj.layer_thickness;
-            mat(k)=0;
-            
-            t_before_scan=time(n-1);
-            index_before_scan=n-1;
-        
-        
-        
-        if is_even(layer) || obj.component_dimensions(2)<=obj.hatch_spacing*2 
-                for i=1:1:(obj.ly/(2*obj.hatch_spacing)+1)%npasseslayer
-                        sc=obj.hatch_spacing;
-              
-                %Start Square Contour
-                
-                %Increase x
-                        x(n)=obj.lx-obj.hatch_spacing;
-                        y(n)=y(n-1);    
-                        %Calculate z
-                        z(n)=(layer)*obj.layer_thickness;
-                        %Calculate time during layer
-                        time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
-                        %Appobj.ly obj.Laser_Power
-                        p(n)=0;
-                        n=n+1;
-            
-                if y(n-1)+obj.hatch_spacing > obj.component_dimensions(2)
-
-                    %Increase y
-                        x(n)=obj.lx-obj.hatch_spacing;
-                        y(n)=y(n-1)+sc;    
-                        %Calculate z
-                        z(n)=(layer)*obj.layer_thickness;
-                        %Calculate time during layer
-                        time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
-                        %Appobj.ly obj.Laser_Power
-                        p(n)=obj.Laser_Power;
-                        n=n+1;
-                
-                    %Decrease x
-                        x(n)=obj.hatch_spacing;
-                        y(n)=y(n-1);    
-                        %Calculate z
-                        z(n)=(layer)*obj.layer_thickness;
-                        %Calculate time during layer
-                        time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
-                        %Appobj.ly obj.Laser_Power
-                        p(n)=0;
-                        n=n+1;
-                        if (i <= ((obj.ly-obj.hatch_spacing)/(2*obj.hatch_spacing))) %if it's not the last scan
-                        %Increase y again
-                                x(n)=obj.hatch_spacing;
-                                y(n)=y(n-1)+sc;    
-                                %Calculate z
-                                z(n)=(layer)*obj.layer_thickness;
-                                %Calculate time during layer
-                                time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
-                                %Appobj.ly obj.Laser_Power
-                                p(n)=obj.Laser_Power;
-                                n=n+1;
-                        end
-                    
-    
-                        if y(n-1)>obj.ly/2 && flg==0
-                            flg=1;
-    
-                            obj.time_per_bead = time(n-1)-time(n-3);
-                            obj.time_before_mid_bead = time(n-3);
-    
-                        end
-                end
-            
-            
-                end
-                
-                
-                
-        else
-            for i=1:1:(obj.lx/(2*obj.hatch_spacing)+1)%npasseslayer
-                sc=obj.hatch_spacing;
-        
-            %Start Square Contour
-            
-            %Increase x
-                x(n)=x(n-1);
-                y(n)=obj.ly-obj.hatch_spacing;    
-                %Calculate z
-                z(n)=(layer)*obj.layer_thickness;
-                %Calculate time during layer
-                time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
-                %Appobj.ly obj.Laser_Power
-                p(n)=0;
-                n=n+1;
-        
-            %Increase y
-                x(n)=x(n-1)+sc;
-                y(n)=obj.ly-obj.hatch_spacing;    
-                %Calculate z
-                z(n)=(layer)*obj.layer_thickness;
-                %Calculate time during layer
-                time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
-                %Appobj.ly obj.Laser_Power
-                p(n)=obj.Laser_Power;
-                n=n+1;
-        
-            %Decrease x
-                x(n)=x(n-1);
-                y(n)=obj.hatch_spacing;    
-                %Calculate z
-                z(n)=(layer)*obj.layer_thickness;
-                %Calculate time during layer
-                time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
-                %Appobj.ly obj.Laser_Power
-                p(n)=0;
-                n=n+1;
-        
-                if (i <= ((obj.lx-obj.hatch_spacing)/(2*obj.hatch_spacing))) %if it's not the last scan
-                %Increase y again
-                        x(n)=x(n-1)+sc;
-                        y(n)=obj.hatch_spacing;    
-                        %Calculate z
-                        z(n)=(layer)*obj.layer_thickness;
-                        %Calculate time during layer
-                        time(n)=(norm([x(n) y(n) z(n)]-[x(n-1) y(n-1) z(n-1)]))/obj.Laser_Speed+time(n-1);
-                        %Appobj.ly obj.Laser_Power
-                        p(n)=obj.Laser_Power;
-                        n=n+1;
-                end
-
-
-                if x(n-1)>obj.lx/2 && flg==0
-                    flg=1;
-
-                    obj.time_per_bead = time(n-1)-time(n-3);
-                    obj.time_before_mid_bead = time(n-3);
-
-                end
-    
-            end
-        
-        end
-            %Calculate scan time:
-            t_after_scan=time(n-1);
-            index_after_scan=n-1;
-        
-            obj.time_of_scanning(layer)=t_after_scan-t_before_scan;
-            obj.indexes_of_scanning(layer)=index_after_scan-index_before_scan;
-        
-            p(n-1)=0;
-            %Appobj.ly rest time after layer, increase z and do first pass of
-            %sequent layer
-            p(n)=obj.Laser_Power;
-            z(n)=z(n-1)+obj.layer_thickness;
-            x(n)=obj.hatch_spacing;
-            y(n)=obj.hatch_spacing;
-            time(n)=time(n-1)+obj.inter_layer_time+obj.dosing_time;
-        
-            %Move roller to beggining
-            xmat(k+1)=0;
-            ymat(k+1)=obj.ly/2;
-            zmat(k+1)=(layer)*obj.layer_thickness;
-            mat(k+1)=0;
-            timemat(k+1)=timemat(k)+0.00001;
-        
-        
-            %Move roller up
-            xmat(k+2)=0;
-            ymat(k+2)=obj.ly/2;
-            zmat(k+2)=(layer)*obj.layer_thickness+obj.layer_thickness;
-            mat(k+2)=1;
-            timemat(k+2)=time(n-1);
-            k=k+3;
-            
-            n=n+1;
-        
-        end
-        
-        %plot
-        plot3(x,y,z)
-        hold on
-        plot3(xmat,ymat,zmat)
-        % axis equal
-        set(gca,'DataAspectRatio',[4 4 1])
-        
-        xlabel('x')
-        ylabel('y')
-        zlabel('z')
-        
-        writematrix( [time(:) x(:) y(:) z(:) p(:)],'Event_series_Heat_mm.csv','Delimiter','comma');
-        
-        %GENERATE MATERIAL FILE FOR SLM
-        
-        writematrix( [timemat(:) xmat(:) ymat(:) zmat(:) mat(:)],'Event_series_Roller_mm.csv','Delimiter','comma');
-        
-        %Change to inps:
-        copyfile 'Event_series_Heat_mm.csv' 'Event_series_Heat_mm.inp'
-        copyfile 'Event_series_Roller_mm.csv' 'Event_series_Roller_mm.inp'
-        
-        delete 'Event_series_Heat_mm.csv'
-        delete 'Event_series_Roller_mm.csv'
-    end
-
 
     function generate_steps_file(obj)
         %Generate STEPs INP
@@ -509,28 +260,6 @@ methods
         obj.generate_event_series_files()
         obj.generate_steps_file()
     end
-
-        %% Generate scan path for 3D thesis
-        % Mode=zeros(1,length(x));
-        % Pmod=p./obj.Laser_Power;
-        % 
-        % 
-        % 
-        % Mode=Mode(1:indexes_of_scanning(obj.current_layer)).';
-        % x=x(1:indexes_of_scanning(obj.current_layer)).';
-        % y=y(1:indexes_of_scanning(obj.current_layer)).';
-        % z=z(1:indexes_of_scanning(obj.current_layer)).';
-        % z=zeros(length(z),1);
-        % Pmod=1-Pmod(1:indexes_of_scanning(obj.current_layer)).'; %I changed 0s to 1s for 3Dtehsis convention
-        % time=time(1:indexes_of_scanning(obj.current_layer)).';
-        % time(:)=obj.Laser_Speed/1000;
-        % 
-        % time(1)=0.000001;
-        % Mode(1)=1;
-        % 
-        % Thesis3D_output = table(Mode,x,y,z,Pmod,time);
-        % Thesis3D_output.Properties.VariableNames([2 3 4 6]) = {'X(mm)' 'Y(mm)' 'Z(mm)' 'Time(s)/obj.Laser_Speed(m/s)'};
-        % writetable(Thesis3D_output,'Path.txt','Delimiter','tab')
 
     end
 end

@@ -12,18 +12,9 @@ from libSLM import mtt
 def Calculate_distance(coords0,coords1): #Calculate distance between two points
     return np.sqrt((coords1[0]-coords0[0])**2 + (coords1[1]-coords0[1])**2)
 
-#Read mtt file
-
-mttReader = mtt.Reader()
-mttReader.setFilePath("../input/FourBlocks-RBV-60Microns.mtt")
-mttReader.parse()
-
-layers = mttReader.layers
-
 #Read input_file.json
 
 f = open("../input/input_file.json", "r")
-
 input_file = json.load(f)
 
 scanspeed = input_file["Laser_Speed"] #mm/s
@@ -34,7 +25,15 @@ layer_thickness = input_file["layer_thickness"] #mm
 inter_layer_time = input_file["inter_layer_time"] #s
 offset = input_file["offset"]
 substrate_dimensions = input_file["substrate_dimensions"] #mm
+AM_build_file = input_file["AM_build_file"] 
 
+#Read mtt file
+
+mttReader = mtt.Reader()
+mttReader.setFilePath(AM_build_file)
+mttReader.parse()
+
+layers = mttReader.layers
 
 n_layer=1
 # for layer in layers:
@@ -48,6 +47,9 @@ for x in range (0,2):
     for geom in Geoms[0:3]:
         
         layer_path = np.append(layer_path,geom.coords, axis=0)
+        
+    number_of_hatch_coords = len(Geoms[0].coords)
+    
 
 
     #Relocate to origin:
@@ -55,7 +57,7 @@ for x in range (0,2):
 
     layer_path = layer_path - min_coords + np.array([offset,offset])
 
-    np.savetxt("../data/coords.csv", layer_path, delimiter=",")
+    # np.savetxt("../data/coords.csv", layer_path, delimiter=",")
 
     #Calculate time:
     n=0
@@ -92,12 +94,12 @@ for x in range (0,2):
     heat_event = np.vstack([heat_event, cooling_event])
 
 
-    np.savetxt("../data/Heat_Series_ly%i.csv" %(n_layer), heat_event, delimiter=",")
+    np.savetxt("./Heat_Series_ly%i.csv" %(n_layer), heat_event, delimiter=",")
     #Need to create roller_event_series
 
     roller_event = np.array([0,0,0,layer_thickness*n_layer,1])
     roller_event = np.vstack((roller_event, np.array([dosing_time,0,substrate_dimensions[1],layer_thickness*n_layer,1])))
 
-    np.savetxt("../data/Roller_Series_ly%i.csv" %(n_layer), roller_event, delimiter=",")
+    np.savetxt("./Roller_Series_ly%i.csv" %(n_layer), roller_event, delimiter=",")
 
     n_layer+=1
