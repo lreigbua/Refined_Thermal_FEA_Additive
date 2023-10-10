@@ -55,8 +55,8 @@
  4,  fPhase_Alpha
  5,  fPhase_Beta
  6,  fPhase_Alphaprime
-*Heat Generation
-*USER DEFINED FIELD
+***Heat Generation
+***USER DEFINED FIELD
 **--------------------------------------------------
 *PARAMETER TABLE, TYPE="ABQ_PHASE_TRANS_MeltingTemperature"
  1604., 1650.
