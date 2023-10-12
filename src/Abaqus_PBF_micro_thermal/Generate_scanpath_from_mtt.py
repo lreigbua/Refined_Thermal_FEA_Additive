@@ -81,9 +81,14 @@ def Generate_scanpath(self):
                         elif previous_length == n:
                             speed = jump_speed
                         previous_length+=length_geoms_array[i]
-                        
 
                     time.append( time[n-1] + (Calculate_distance(layer_path[n-1],layer_path[n])/speed) ) 
+            
+                    #Save times of middle bead:
+                    if n == number_of_hatch_coords/2 + 1:
+                        this_layer.scan_time_before_middle_bead = time[-3] - dosing_time
+                        this_layer.scan_time_after_middle_bead = time[-1] - dosing_time
+
                 n += 1
 
             # Calculate time of scanning

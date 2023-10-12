@@ -1,7 +1,7 @@
 {
 "layer_thickness" : 0.06,
 "number_of_refinements" : 5,
-"heights_of_interest": [0.06],
+"heights_of_interest": [0.06, 0.48, 0.96],
 "substrate_dimensions" : [80.64,80.64,9.6],
 "Laser_Power" : 375000.0,
 "Laser_Speed" : 1029.0,
