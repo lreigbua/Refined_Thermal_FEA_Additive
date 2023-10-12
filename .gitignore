@@ -1,3 +1,4 @@
+src/__pycache__/
 data_read_mtt/
 data/Component_geometry.inp
 data/Comp_geometry_cylinder.sat
