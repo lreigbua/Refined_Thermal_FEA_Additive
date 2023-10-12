@@ -458,3 +458,14 @@ input/10mm_cube_stripe.mtt
 input/10mm_cube_meander.mtt
 input/10mm_Cube.sat
 input/096mm_Cube.sat
+src/Abaqus_PBF_micro_thermal/__pycache__/utils.cpython-39.pyc
+src/Abaqus_PBF_micro_thermal/__pycache__/utils.cpython-38.pyc
+src/Abaqus_PBF_micro_thermal/__pycache__/layer_class.cpython-39.pyc
+src/Abaqus_PBF_micro_thermal/__pycache__/layer_class.cpython-38.pyc
+src/Abaqus_PBF_micro_thermal/__pycache__/Generate_Step_files_for_layer.cpython-39.pyc
+src/Abaqus_PBF_micro_thermal/__pycache__/Generate_Step_files_for_layer.cpython-38.pyc
+src/Abaqus_PBF_micro_thermal/__pycache__/Generate_scanpath_from_mtt.cpython-39.pyc
+src/Abaqus_PBF_micro_thermal/__pycache__/Generate_scanpath_from_mtt.cpython-38.pyc
+src/Abaqus_PBF_micro_thermal/__pycache__/Abaqus_PBF_Sim.cpython-39.pyc
+src/Abaqus_PBF_micro_thermal/__pycache__/__init__.cpython-39.pyc
+src/Abaqus_PBF_micro_thermal/__pycache__/__init__.cpython-38.pyc
