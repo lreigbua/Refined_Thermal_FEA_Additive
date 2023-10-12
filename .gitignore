@@ -469,3 +469,6 @@ src/Abaqus_PBF_micro_thermal/__pycache__/Generate_scanpath_from_mtt.cpython-38.p
 src/Abaqus_PBF_micro_thermal/__pycache__/Abaqus_PBF_Sim.cpython-39.pyc
 src/Abaqus_PBF_micro_thermal/__pycache__/__init__.cpython-39.pyc
 src/Abaqus_PBF_micro_thermal/__pycache__/__init__.cpython-38.pyc
+src/add_mapping.m
+src/abaqus1.rec
+src/abaqus.rpy
