@@ -7,9 +7,9 @@ It uses a high time resolution only in the layers specified, where temperature w
 
 ## Dependencies
 
--Abaqus (tested on 2022 only)
--Numpy
--Pyslm with mtt translator (https://github.com/drlukeparry/libSLM)
+- Abaqus (tested on 2022 only)
+- Numpy
+- Pyslm with mtt translator (https://github.com/drlukeparry/libSLM)
 
 ## How to run
 
