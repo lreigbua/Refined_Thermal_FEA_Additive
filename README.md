@@ -5,6 +5,12 @@
 This code solves a thermal model of a powder bed fusion process in Abaqus. It uses layer-wise adaptive mesh refinement to speed up the simulation. It is still a computationally expensive simulation.
 It uses a high time resolution only in the layers specified, where temperature will be recorded as history outputs.
 
+## Dependencies
+
+- Abaqus (tested on 2022 only)
+- Numpy
+- Pyslm with mtt translator (https://github.com/drlukeparry/libSLM)
+
 ## How to run
 
 Run main.m in src folder.
