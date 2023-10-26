@@ -1,6 +1,7 @@
 src/__pycache__/
 date_read_mtt_cube_with_holes/
 data_read_mtt/
+10mm_cube/
 data/Component_geometry.inp
 data/Comp_geometry_cylinder.sat
 data/Comp_geometry_my_rectangle_09mm_height.sat
