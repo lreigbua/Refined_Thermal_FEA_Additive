@@ -2,6 +2,8 @@ from .layer_class import my_layer
 
 def Generate_Step_files_for_layer(self,layer):
     #This method prints the step files of a given layer object
+
+    print(layer.intersection_times)
     
     layer_height = layer.height
 
@@ -96,6 +98,31 @@ TEMP
             t1 = layer.scan_time_before_middle_bead
             t2 = layer.scan_time_after_middle_bead
             t3 = scan_time
+            
+            short_increment = 0.0001
+
+            time_mark_text=f"""**
+*TIME POINTS, NAME=LASERON, GENERATE
+            """
+
+            for i in range(layer.intersection_times):
+                t1 = layer.intersection_times[i][0] - dosing_time
+                t2 = layer.intersection_times[i][1] - dosing_time
+                if i < len(layer.intersection_times)-1:
+                    t3 = layer.intersection_times[i+1][0] - dosing_time
+                else:
+                    t3 = scan_time
+
+                if t2 > t1: continue #this is to avoid errors for the moment
+
+                if i == 0: #first line
+                    time_mark_text+=f'0.0, {t1}, {increment}'
+
+                time_mark_text += f"{t1}, {t2}, {short_increment}"
+                time_mark_text += f"{t2}, {t3}, {increment}"
+
+            
+                    
 
             time_mark_text=f"""**
 *TIME POINTS, NAME=LASERON, GENERATE
@@ -115,6 +142,9 @@ TEMP
             f.write(step_text.format(3, 3 , 0.2, 0.2, 0.2,freq, HO_all))
             #print long increment cooling step
             f.write(step_text.format(4, 4 , 1.0, inter_layer_time, 1.0,freq, HO_all))
+
+
+            
 
         else:
             

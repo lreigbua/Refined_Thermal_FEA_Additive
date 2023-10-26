@@ -16,12 +16,28 @@ def Generate_scanpath(self):
         def Calculate_distance(coords0,coords1): #Calculate distance between two points
             return np.sqrt((coords1[0]-coords0[0])**2 + (coords1[1]-coords0[1])**2)
         
-        # def Calculate_intersection(coords0,coords1,point_of_interest):
-        #     sphere = Sphere(point_of_interest, 0.018)
-        #     line = Line([0, 0, 0], [1, 1, 1])
+        def inSphere(point, centre, radius):
+            #Checks if point is inside a sphere with centre and radius
 
-        #     #Calculates the two points of intersection between a scan line and a sphere around a given point of interest
+            # Calculate the difference between the reference and measuring point
+            diff = np.subtract(point, centre)
 
+            # Calculate square length of vector (distance between ref and point)^2
+            dist = np.sum(np.power(diff, 2))
+
+            # If dist is less than radius^2, return True, else return False
+            return dist < radius ** 2
+        
+        def Calculate_sphere_intersection(coords0,coords1,point_of_interest):
+            #Calculates the two points of intersection between a scan line and a sphere around a given point of interest
+            sphere = Sphere(point_of_interest, 0.3)
+            line = Line.from_points(coords0, coords1)
+
+            try:
+                point_a, point_b = sphere.intersect_line(line)
+                return point_a, point_b
+            except:
+                return False
 
 
         #Read input_file.json
@@ -42,17 +58,21 @@ def Generate_scanpath(self):
 
         layers = mttReader.layers
 
+        #initialize some variables
         n_layer=1
         self.layer_objects_array=[]
+
+
+        start_time_of_intersection_inside_sphere = False
 
         for layer in layers: #iterate through layers
 
             this_layer = my_layer(layer_thickness * n_layer, layer_thickness)
 
+            this_layer.intersection_times = []
+
             Geoms = layer.getGeometry()
             number_of_hatch_coords = len(Geoms[0].coords)
-
-            
 
             #Extract layer path:
             layer_path = np.empty((0,2), int)
@@ -93,95 +113,61 @@ def Generate_scanpath(self):
                                 p = Power_value
                                 speed = scanspeed
 
-                        time.append( time[c-1] + (Calculate_distance(layer_path[c-1],layer_path[c])/speed) )
-
-                        #Calculate time of intersection with sphere of interest:
-
-                    
-                    c += 1
+                        time.append( time[c-1] + (Calculate_distance(layer_path[c-1],layer_path[c])/speed) ) 
+                            
+                    c += 1 #counter for coordinates in this layer
 
                     #Save times of middle bead:
                     if n == number_of_hatch_coords/2 + 1:
                         this_layer.scan_time_before_middle_bead = time[-3] - dosing_time
                         this_layer.scan_time_after_middle_bead = time[-1] - dosing_time
-
                     
                     Power_column.append(p)
 
             #Relocate layer_path to origin (sample in mtt is not at origin):
             min_coords = layer_path[np.argmin(np.sum(layer_path, axis=1))]
-
             layer_path = layer_path - min_coords + np.array([offset,offset])
 
-            #Create event series array
-            heat_event = np.hstack((np.array(time).reshape(-1, 1), layer_path, np.ones((len(layer_path),1)) * layer_thickness * n_layer, np.array(Power_column).reshape(-1, 1)))
-            np.savetxt("heat_event_trial.csv", heat_event, delimiter=",")
-            
+
+            point_of_interest = [0.6, 4.2, 2.34] #mm
+            # Iterate again through layer_path coordinates to calculate intersections, looping again is needed because of relocation
+            for c in range(1,len(layer_path)): #we start at 1 to skip dosing time coordinates
+                #Calculate time of intersection with sphere of interest:
+                Coord_ini = np.append(layer_path[c-1], this_layer.height).transpose()
+                Coord_final = np.append(layer_path[c], this_layer.height).transpose()
+
+                intersection = Calculate_sphere_intersection(Coord_ini,Coord_final, point_of_interest)
                 
-            
+                if n_layer == 39 and intersection != False:
+                    print(Coord_ini, Coord_final)
+                    print(intersection)
+                    
+                if intersection is not False and this_layer.height >= point_of_interest[2]-self.eps: #If there is an intersection in the top half of the sphere
+                    point_a, point_b = intersection
+                    #time of entering sphere:
+                    start_time_of_intersection = time[c-1] + (Calculate_distance(layer_path[c-1],point_a)/speed)
+                    end_time_of_intersection = time[c-1] + (Calculate_distance(layer_path[c-1],point_b)/speed)
+
+                    # #The next two ifs are used to address if the start of a layerpath is inside the sphere of interest
+                    # if start_time_of_intersection_inside_sphere == False:
+                    #     if inSphere(Coord_ini, point_of_interest, 0.018): #if beggining of hatch is inside sphere
+                    #         start_time_of_intersection = time[c-1] + (Calculate_distance(layer_path[c-1],point_a)/speed)
+                    #         start_time_of_intersection_inside_sphere = True
+
+                    # if inSphere(Coord_final, point_of_interest, 0.018) and start_time_of_intersection_inside_sphere: #if end of hatch is inside sphere                            
+                    #     continue
+                    # else:
+                    this_layer.intersection_times.append((start_time_of_intersection, end_time_of_intersection))   
 
 
+            #Create event series array
+            heat_event = np.hstack((np.array(time).reshape(-1, 1), layer_path, np.ones((len(layer_path),1)) * this_layer.height, np.array(Power_column).reshape(-1, 1)))
+            np.savetxt("heat_event_trial.csv", heat_event, delimiter=",")
 
             # Calculate time of scanning:
             this_layer.scan_time = time[-1] - dosing_time
 
             time = np.array(time)
-
-            # #Calculate time:
-            # n=0
-            # time = []
-            # for _ in layer_path:
-            #     if n == 0:
-            #         time.append(dosing_time)
-            #     else:
-            #         if n % 2 != 0: #during hatching, odd n means laser is on and the speed is equal to the scan speed
-            #             speed = scanspeed
-            #         else:
-            #             speed = jump_speed
-
-            #         previous_length = length_geoms_array[0] #during contouring, jump speed is used only at the end of the contour
-            #         for i in range(1,len(length_geoms_array)): 
-            #             if previous_length + 1 < n+1 <= previous_length + length_geoms_array[i]:
-            #                 speed = scanspeed
-            #             elif previous_length == n:
-            #                 speed = jump_speed
-            #             previous_length+=length_geoms_array[i]
-
-            #         time.append( time[n-1] + (Calculate_distance(layer_path[n-1],layer_path[n])/speed) ) 
-            
-
-            #     n += 1
-
-            # # Calculate time of scanning
-            # this_layer.scan_time = time[-1] - dosing_time
-
-            # time = np.array(time)
-
-            # #Add z position
-            # z =np.ones((len(layer_path),1)) * layer_thickness * n_layer
-            # Power_value_column =np.ones((len(layer_path),1)) * Power_value
-
-            #Add Power_value column
-
-                #During hatching, power is zero every other coordinate
-            # Power_value_column[1:len(Power_value_column):2] = 0 
-            
-            #     #During contour, it is only zero at the end of the contour
-            # count = 0
-            # previous_length = 0
-            # for length in length_geoms_array:
-            #     if count != 0:
-            #         Power_value_column[previous_length:previous_length+length-1] = Power_value 
-            #         Power_value_column[previous_length+length-1] = 0
-            #     previous_length += length
-            #     count += 1
-            
-
-            # layer_path = np.append(layer_path, z, axis=1)
-            # layer_path = np.append(layer_path, Power_value_column, axis=1)
-
-            # heat_event = np.append(time.reshape(-1,1),layer_path, axis=1)
-
 
             #Add cooling time
             cooling_event = np.array([time[-1]+inter_layer_time-dosing_time,0,0,0,0])
@@ -191,13 +177,11 @@ def Generate_scanpath(self):
             #Save heat_event_series
             np.savetxt(self.input_file_dict["output_path"] + "/Heat_Series_ly%i.csv" %(n_layer), heat_event, delimiter=",")
             
-            
             #Need to create roller_event_series
             roller_event = np.array([0,0,0,layer_thickness*n_layer,1])
             roller_event = np.vstack((roller_event, np.array([dosing_time,0,substrate_dimensions[1],layer_thickness*n_layer,1])))
 
             np.savetxt(self.input_file_dict["output_path"] + "/Roller_Series_ly%i.csv" %(n_layer), roller_event, delimiter=",")
-
             
             #Add layer to layer_objects_arrays
             self.layer_objects_array.append(this_layer)
