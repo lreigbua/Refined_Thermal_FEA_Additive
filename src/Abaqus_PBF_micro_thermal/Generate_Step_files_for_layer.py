@@ -89,76 +89,51 @@ TEMP
 
     if it_is_layer_of_interest:
 
-        if self.input_file_dict["high_resolution_only_one_bead"] == "yes":
 
-            freq_scan = ", TIME POINTS=LASERON, TIME MARKS=YES"
-            increment = scan_time/6
 
-            #Calculate time points
-            t1 = layer.scan_time_before_middle_bead
-            t2 = layer.scan_time_after_middle_bead
-            t3 = scan_time
-            
-            short_increment = 0.0001
+        freq_scan = ", TIME POINTS=LASERON, TIME MARKS=YES"
+        increment = scan_time/6
 
-            time_mark_text=f"""**
+        #Calculate time points
+        t1 = layer.scan_time_before_middle_bead
+        t2 = layer.scan_time_after_middle_bead
+        t3 = scan_time
+        
+        short_increment = 0.001
+
+        time_mark_text=f"""**
 *TIME POINTS, NAME=LASERON, GENERATE
-            """
+"""
 
-            for i in range(layer.intersection_times):
-                t1 = layer.intersection_times[i][0] - dosing_time
-                t2 = layer.intersection_times[i][1] - dosing_time
-                if i < len(layer.intersection_times)-1:
-                    t3 = layer.intersection_times[i+1][0] - dosing_time
-                else:
-                    t3 = scan_time
+        for i in range(len(layer.intersection_times)):
+            t1 = layer.intersection_times[i][0] - dosing_time
+            t2 = layer.intersection_times[i][1] - dosing_time
+            if i < len(layer.intersection_times)-1:
+                t3 = layer.intersection_times[i+1][0] - dosing_time
+            else:
+                t3 = scan_time
 
-                if t2 > t1: continue #this is to avoid errors for the moment
+            if t2 < t1: continue #this is to avoid errors for the moment
 
-                if i == 0: #first line
-                    time_mark_text+=f'0.0, {t1}, {increment}'
+            if i == 0: #first line
+                time_mark_text += f"0.0, {t1}, {increment}\n"
 
-                time_mark_text += f"{t1}, {t2}, {short_increment}"
-                time_mark_text += f"{t2}, {t3}, {increment}"
-
-            
-                    
-
-            time_mark_text=f"""**
-*TIME POINTS, NAME=LASERON, GENERATE
-0.0, {t1}, {increment} 
-{t1}, {t2}, 0.0001 
-{t2}, {t3}, {increment} 
-            **"""
-            #add time points to Steps.inp     
-            f=open("Steps.inp",'w')
-            f.write(time_mark_text)
-
-            #print rolling step
-            f.write(step_text.format(1, 1 ,dosing_time/4 , dosing_time, dosing_time/4, freq, HO_all))
-            #print scanning step
-            f.write(step_text.format(2, 2 , scan_time/20 , scan_time, scan_time/20, freq_scan, HO_all))
-            #prints short increment cooling step
-            f.write(step_text.format(3, 3 , 0.2, 0.2, 0.2,freq, HO_all))
-            #print long increment cooling step
-            f.write(step_text.format(4, 4 , 1.0, inter_layer_time, 1.0,freq, HO_all))
+            time_mark_text += f"{t1}, {t2}, {short_increment}\n"
+            time_mark_text += f"{t2}, {t3}, {increment}\n"
 
 
-            
+        #add time points to Steps.inp     
+        f=open("Steps.inp",'w')
+        f.write(time_mark_text)
 
-        else:
-            
-            f = open('Steps.inp', 'w')
-            increment = 0.001
-            #print rolling step
-            f.write(step_text.format(1, 1 ,dosing_time/4 , dosing_time, dosing_time/4,freq, HO_all))
-            #print scanning step
-            f.write(step_text.format(2, 2 , increment , scan_time, increment, freq, HO_all))
-            #prints short increment cooling step
-            f.write(step_text.format(3, 3 , increment, 0.2, increment,freq, HO_all))
-            #print long increment cooling step
-            f.write(step_text.format(4, 4 , 1.0, inter_layer_time, 1.0,freq, HO_all))
-
+        #print rolling step
+        f.write(step_text.format(1, 1 ,dosing_time/4 , dosing_time, dosing_time/4, freq, HO_all))
+        #print scanning step
+        f.write(step_text.format(2, 2 , scan_time/20 , scan_time, scan_time/20, freq_scan, HO_all))
+        #prints short increment cooling step
+        f.write(step_text.format(3, 3 , 0.2, 0.2, 0.2,freq, HO_all))
+        #print long increment cooling step
+        f.write(step_text.format(4, 4 , 1.0, inter_layer_time, 1.0,freq, HO_all))
 
     else:
 

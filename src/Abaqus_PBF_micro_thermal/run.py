@@ -71,7 +71,7 @@ def run(self):
     #Run simulation of each layer:
     for layer in self.layer_objects_array: #This array of my_layer objects is generated in Generate_scanpath_from_mtt.py
         
-        if i ==38:
+        if i==0 or i==1 or i ==2:
 
             #Generate step files:
             self.Generate_Step_files_for_layer(layer)
@@ -89,7 +89,7 @@ def run(self):
             else:
                 shutil.copy(f"./INP_default.inp",Job_name+".inp")
 
-            raise NotImplementedError
+
             os.system(f"abaqus job={Job_name} cpus=4 interactive ask_delete=OFF")
 
         # if i == 0:

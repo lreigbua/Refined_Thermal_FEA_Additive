@@ -30,7 +30,7 @@ def Generate_scanpath(self):
         
         def Calculate_sphere_intersection(coords0,coords1,point_of_interest):
             #Calculates the two points of intersection between a scan line and a sphere around a given point of interest
-            sphere = Sphere(point_of_interest, 0.3)
+            sphere = Sphere(point_of_interest, 0.18)
             line = Line.from_points(coords0, coords1)
 
             try:
@@ -129,7 +129,7 @@ def Generate_scanpath(self):
             layer_path = layer_path - min_coords + np.array([offset,offset])
 
 
-            point_of_interest = [0.6, 4.2, 2.34] #mm
+            point_of_interest = [2.5, 5, 0.06] #mm
             # Iterate again through layer_path coordinates to calculate intersections, looping again is needed because of relocation
             for c in range(1,len(layer_path)): #we start at 1 to skip dosing time coordinates
                 #Calculate time of intersection with sphere of interest:
@@ -138,7 +138,7 @@ def Generate_scanpath(self):
 
                 intersection = Calculate_sphere_intersection(Coord_ini,Coord_final, point_of_interest)
                 
-                if n_layer == 39 and intersection != False:
+                if n_layer == 1 and intersection != False:
                     print(Coord_ini, Coord_final)
                     print(intersection)
                     

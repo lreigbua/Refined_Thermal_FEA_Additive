@@ -599,16 +599,16 @@ class Slice:  #class to store attributes and methods for each slice
 
 
 
-# Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
-
-# while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.000001: # Performs Octree mesh generation until it has been done for all layer heights
-#     print(Process.current_height)
-#     Process.run()
-#     Process.current_height=round(Process.current_height+Process.layer_thickness,2)
-
-
 Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
-Process.current_height=39*0.06
 
-Process.run()
-Process.current_height=round(Process.current_height+Process.layer_thickness,2)
+while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.000001: # Performs Octree mesh generation until it has been done for all layer heights
+    print(Process.current_height)
+    Process.run()
+    Process.current_height=round(Process.current_height+Process.layer_thickness,2)
+
+
+# Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
+# Process.current_height=39*0.06
+
+# Process.run()
+# Process.current_height=round(Process.current_height+Process.layer_thickness,2)
