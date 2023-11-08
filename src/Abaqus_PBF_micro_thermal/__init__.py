@@ -16,10 +16,12 @@ class Abaqus_PBF_micro_thermal_class:
 
     #import methods from other files:
 
+    #methods for pre-processing
+    from .Generate_scanpath_from_mtt import Generate_scanpath_from_mtt
+
     #methods for processing
     from .run import run
-    from .Generate_scanpath_from_mtt import Generate_scanpath
-    from .Generate_Step_files_for_layer import Generate_Step_files_for_layer
+    from .Generate_Step_files_for_layer import Generate_Step_files_for_layer #private method
     
     #methods for post-processing
     from .Generate_Output_Video import Generate_Output_Video

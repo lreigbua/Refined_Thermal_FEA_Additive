@@ -1,11 +1,40 @@
-from .layer_class import my_layer
+import numpy as np
+
+from skspatial.objects import Line, Sphere
 
 def Generate_Step_files_for_layer(self,layer):
-    #This method prints the step files of a given layer object
+    #This method creates the step files of a given layer object
 
-    print(layer.intersection_times)
+    def Calculate_distance(coords0,coords1): #Calculate distance between two points
+        return np.sqrt((coords1[0]-coords0[0])**2 + (coords1[1]-coords0[1])**2)
     
-    layer_height = layer.height
+    def inSphere(point, centre, radius):
+        #Checks if point is inside a sphere with centre and radius
+
+        # Calculate the difference between the reference and measuring point
+        diff = np.subtract(point, centre)
+
+        # Calculate square length of vector (distance between ref and point)^2
+        dist = np.sum(np.power(diff, 2))
+
+        # If dist is less than radius^2, return True, else return False
+        return dist < radius ** 2
+    
+    def Calculate_sphere_intersection(coords0,coords1,point_of_interest):
+        #Calculates the two points of intersection between a scan line and a sphere around a given point of interest
+        sphere = Sphere(point_of_interest, 0.18)
+        line = Line.from_points(coords0, coords1)
+
+        try:
+            point_a, point_b = sphere.intersect_line(line)
+            return point_a, point_b
+        except:
+            return False
+
+
+    layer_height = layer * self.input_file_dict["layer_thickness"]
+    scan_speed = self.input_file_dict["Laser_Speed"] #mm/s
+    jump_speed = self.input_file_dict["jump_speed"] #mm/s
 
     step_text="""**
 ** ----------------------------------------------------------------
@@ -60,10 +89,7 @@ NT
     freq = ''
     freq_scan = "" # Used to set the time increments and number of outputs
 
-    it_is_layer_of_interest = layer.is_of_interest
-
     dosing_time = self.input_file_dict["dosing_time"]
-    scan_time = layer.scan_time
     inter_layer_time = self.input_file_dict["inter_layer_time"]
 
     #Specify history outputs requested:
@@ -82,31 +108,86 @@ TEMP
             HO_all+=HO_text.format(layer_number,layer_number)
 
 
+
+    #read scanpath from event series file:
+    if self.input_file_dict["scanpath_path"] == "":
+        path = self.input_file_dict["output_path"] + "/scanpath" + "/Heat_Series_ly%i.csv" %(layer)
+    else:
+        path = self.input_file_dict["scanpath_path"] + "/Heat_Series_ly%i.csv" %(layer)
+        
+    heat_event_series = np.loadtxt(path, delimiter=",", usecols=(0,1,2,3))
+
+    layer_path = heat_event_series[:,1:3]
+    time = heat_event_series[:,0]
+
+    #add cooling time
+    # time = np.append(time,time[-1]+inter_layer_time-dosing_time)
+
+    #Calculate scan time
+    scan_time = time[-1] 
+
+
+#Calculate intersection times with sphere around points of interest
+
+    intersection_times = []
+    points_of_interest = self.input_file_dict["points_of_interest"]
+
+    #Calculate point of interest for this layer:
+    layer_is_of_interest = False
+    for point in points_of_interest:
+        if layer_height >= point[2]-self.eps and abs(layer_height - point[2] + self.eps) <= 0.18:
+            point_of_interest = point
+            layer_is_of_interest = True
+            break
     
+    if layer_is_of_interest:
 
-    if it_is_layer_of_interest:
+        for c in range(1,len(layer_path)): #we start at 1 to skip dosing time coordinates
+            #Calculate time of intersection with sphere of interest:
+            Coord_ini = np.append(layer_path[c-1], layer_height).transpose()
+            Coord_final = np.append(layer_path[c], layer_height).transpose()
+
+            intersection = Calculate_sphere_intersection(Coord_ini,Coord_final, point_of_interest)
+                
+            if intersection is not False and layer_height >= point_of_interest[2]-self.eps: #If there is an intersection in the top half of the sphere
+                point_a, point_b = intersection
+                # print((point_a, point_b))
+                #time of entering sphere:
+                start_time_of_intersection = time[c-1] + (Calculate_distance(layer_path[c-1],point_a)/scan_speed)
+                end_time_of_intersection = time[c-1] + (Calculate_distance(layer_path[c-1],point_b)/scan_speed)
+
+                # #The next two ifs are used to address if the start of a layerpath is inside the sphere of interest
+                # if start_time_of_intersection_inside_sphere == False:
+                #     if inSphere(Coord_ini, point_of_interest, 0.018): #if beggining of hatch is inside sphere
+                #         start_time_of_intersection = time[c-1] + (Calculate_distance(layer_path[c-1],point_a)/speed)
+                #         start_time_of_intersection_inside_sphere = True
+
+                # if inSphere(Coord_final, point_of_interest, 0.018) and start_time_of_intersection_inside_sphere: #if end of hatch is inside sphere                            
+                #     continue
+                # else:
+
+                # print((start_time_of_intersection, end_time_of_intersection))
+                intersection_times.append((start_time_of_intersection, end_time_of_intersection))
 
 
+    
+# Write Steps.inp file:
+    if layer_is_of_interest:
 
         freq_scan = ", TIME POINTS=LASERON, TIME MARKS=YES"
         increment = scan_time/12
 
-        #Calculate time points
-        t1 = layer.scan_time_before_middle_bead
-        t2 = layer.scan_time_after_middle_bead
-        t3 = scan_time
-        
         short_increment = 0.001
 
         time_mark_text=f"""**
 *TIME POINTS, NAME=LASERON, GENERATE
 """
 
-        for i in range(len(layer.intersection_times)):
-            t1 = layer.intersection_times[i][0] - dosing_time
-            t2 = layer.intersection_times[i][1] - dosing_time
-            if i < len(layer.intersection_times)-1:
-                t3 = layer.intersection_times[i+1][0] - dosing_time
+        for i in range(len(intersection_times)):
+            t1 = intersection_times[i][0] - dosing_time
+            t2 = intersection_times[i][1] - dosing_time
+            if i < len(intersection_times)-1:
+                t3 = intersection_times[i+1][0] - dosing_time
             else:
                 t3 = scan_time
 
@@ -117,6 +198,7 @@ TEMP
 
             time_mark_text += f"{t1}, {t2}, {short_increment}\n"
             time_mark_text += f"{t2}, {t3}, {increment}\n"
+
 
 
         #add time points to Steps.inp     

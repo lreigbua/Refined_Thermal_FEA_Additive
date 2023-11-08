@@ -1,0 +1,18 @@
+{
+"layer_thickness" : 0.06,
+"number_of_refinements" : 5,
+"heights_of_interest": [0.06, 0.12, 0.18],
+"points_of_interest": [[0.5, 0.5, 0.06]],
+"substrate_dimensions" : [80.64,80.64,9.6],
+"Laser_Power" : 375000.0,
+"Laser_Speed" : 1029.0,
+"jump_speed" : 2000.0,
+"hatch_spacing" : 0.12,
+"dosing_time" : 0.2,
+"inter_layer_time" : 8.0,
+"offset" : 0.085,
+"component_geometry_path" : "D:/mkb21147/Abaqus/Macro_Models/Process_Structure_FEA_SLM_w_refinement/Process_Structure_FEA_SLM_w_refinement_clone/Process_Structure_FEA_SLM_w_refinement/input/096mm_Cube.sat",
+"AM_build_file" : "D:/mkb21147/Abaqus/Macro_Models/Process_Structure_FEA_SLM_w_refinement/Process_Structure_FEA_SLM_w_refinement_clone/Process_Structure_FEA_SLM_w_refinement/input/1mm_cube.mtt",
+"scanpath_path" : "D:/mkb21147/Abaqus/Macro_Models/Process_Structure_FEA_SLM_w_refinement/Process_Structure_FEA_SLM_w_refinement_clone/Process_Structure_FEA_SLM_w_refinement/1mm_cube/scanpath",
+"output_path": "D:/mkb21147/Abaqus/Macro_Models/Process_Structure_FEA_SLM_w_refinement/Process_Structure_FEA_SLM_w_refinement_clone/Process_Structure_FEA_SLM_w_refinement/1mm_cube"
+}
