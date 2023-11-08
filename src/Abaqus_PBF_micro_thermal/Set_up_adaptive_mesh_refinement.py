@@ -52,6 +52,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
     number_of_refinements=dict_var_of_json['number_of_refinements']
     heights_of_interest=dict_var_of_json['heights_of_interest']
     heights_of_interest.sort(reverse=True) #sorts form high to low
+    points_of_interest=dict_var_of_json['points_of_interest']
     component_geometry_path=dict_var_of_json['component_geometry_path']
     substrate_dimensions = dict_var_of_json['substrate_dimensions']
 

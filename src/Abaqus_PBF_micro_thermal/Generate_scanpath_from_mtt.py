@@ -49,7 +49,8 @@ def Generate_scanpath(self):
         inter_layer_time = self.input_file_dict["inter_layer_time"] #s
         offset = self.input_file_dict["offset"]
         substrate_dimensions = self.input_file_dict["substrate_dimensions"] #mm
-        AM_build_file = self.input_file_dict["AM_build_file"] 
+        AM_build_file = self.input_file_dict["AM_build_file"]
+        points_of_interest=self.input_file_dict['points_of_interest']
 
         #Read mtt file
         mttReader = mtt.Reader()
@@ -128,36 +129,40 @@ def Generate_scanpath(self):
             min_coords = layer_path[np.argmin(np.sum(layer_path, axis=1))]
             layer_path = layer_path - min_coords + np.array([offset,offset])
 
+            
+            #Calculate point of interest for this layer:
+            this_layer.is_of_interest = False
+            for point in points_of_interest:
+                if this_layer.height >= point[2]-self.eps and abs(this_layer.height - point[2] + self.eps) <= 0.18:
+                    point_of_interest = point
+                    this_layer.is_of_interest = True
+                    break
+            
+            if this_layer.is_of_interest:
+                # Iterate again through layer_path coordinates to calculate intersections, looping again is needed because of relocation
+                for c in range(1,len(layer_path)): #we start at 1 to skip dosing time coordinates
+                    #Calculate time of intersection with sphere of interest:
+                    Coord_ini = np.append(layer_path[c-1], this_layer.height).transpose()
+                    Coord_final = np.append(layer_path[c], this_layer.height).transpose()
 
-            point_of_interest = [2.5, 5, 0.06] #mm
-            # Iterate again through layer_path coordinates to calculate intersections, looping again is needed because of relocation
-            for c in range(1,len(layer_path)): #we start at 1 to skip dosing time coordinates
-                #Calculate time of intersection with sphere of interest:
-                Coord_ini = np.append(layer_path[c-1], this_layer.height).transpose()
-                Coord_final = np.append(layer_path[c], this_layer.height).transpose()
+                    intersection = Calculate_sphere_intersection(Coord_ini,Coord_final, point_of_interest)
+                        
+                    if intersection is not False and this_layer.height >= point_of_interest[2]-self.eps: #If there is an intersection in the top half of the sphere
+                        point_a, point_b = intersection
+                        #time of entering sphere:
+                        start_time_of_intersection = time[c-1] + (Calculate_distance(layer_path[c-1],point_a)/speed)
+                        end_time_of_intersection = time[c-1] + (Calculate_distance(layer_path[c-1],point_b)/speed)
 
-                intersection = Calculate_sphere_intersection(Coord_ini,Coord_final, point_of_interest)
-                
-                if n_layer == 1 and intersection != False:
-                    print(Coord_ini, Coord_final)
-                    print(intersection)
-                    
-                if intersection is not False and this_layer.height >= point_of_interest[2]-self.eps: #If there is an intersection in the top half of the sphere
-                    point_a, point_b = intersection
-                    #time of entering sphere:
-                    start_time_of_intersection = time[c-1] + (Calculate_distance(layer_path[c-1],point_a)/speed)
-                    end_time_of_intersection = time[c-1] + (Calculate_distance(layer_path[c-1],point_b)/speed)
+                        # #The next two ifs are used to address if the start of a layerpath is inside the sphere of interest
+                        # if start_time_of_intersection_inside_sphere == False:
+                        #     if inSphere(Coord_ini, point_of_interest, 0.018): #if beggining of hatch is inside sphere
+                        #         start_time_of_intersection = time[c-1] + (Calculate_distance(layer_path[c-1],point_a)/speed)
+                        #         start_time_of_intersection_inside_sphere = True
 
-                    # #The next two ifs are used to address if the start of a layerpath is inside the sphere of interest
-                    # if start_time_of_intersection_inside_sphere == False:
-                    #     if inSphere(Coord_ini, point_of_interest, 0.018): #if beggining of hatch is inside sphere
-                    #         start_time_of_intersection = time[c-1] + (Calculate_distance(layer_path[c-1],point_a)/speed)
-                    #         start_time_of_intersection_inside_sphere = True
-
-                    # if inSphere(Coord_final, point_of_interest, 0.018) and start_time_of_intersection_inside_sphere: #if end of hatch is inside sphere                            
-                    #     continue
-                    # else:
-                    this_layer.intersection_times.append((start_time_of_intersection, end_time_of_intersection))   
+                        # if inSphere(Coord_final, point_of_interest, 0.018) and start_time_of_intersection_inside_sphere: #if end of hatch is inside sphere                            
+                        #     continue
+                        # else:
+                        this_layer.intersection_times.append((start_time_of_intersection, end_time_of_intersection))   
 
 
             #Create event series array

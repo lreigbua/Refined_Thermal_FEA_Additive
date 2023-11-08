@@ -60,10 +60,7 @@ NT
     freq = ''
     freq_scan = "" # Used to set the time increments and number of outputs
 
-    it_is_layer_of_interest = False
-    for height in self.input_file_dict["heights_of_interest"]:
-        if abs(layer_height-height) < self.eps:
-            it_is_layer_of_interest = True
+    it_is_layer_of_interest = layer.is_of_interest
 
     dosing_time = self.input_file_dict["dosing_time"]
     scan_time = layer.scan_time
@@ -92,7 +89,7 @@ TEMP
 
 
         freq_scan = ", TIME POINTS=LASERON, TIME MARKS=YES"
-        increment = scan_time/6
+        increment = scan_time/12
 
         #Calculate time points
         t1 = layer.scan_time_before_middle_bead
@@ -129,7 +126,7 @@ TEMP
         #print rolling step
         f.write(step_text.format(1, 1 ,dosing_time/4 , dosing_time, dosing_time/4, freq, HO_all))
         #print scanning step
-        f.write(step_text.format(2, 2 , scan_time/20 , scan_time, scan_time/20, freq_scan, HO_all))
+        f.write(step_text.format(2, 2 , scan_time/20 , scan_time, scan_time/12, freq_scan, HO_all))
         #prints short increment cooling step
         f.write(step_text.format(3, 3 , 0.2, 0.2, 0.2,freq, HO_all))
         #print long increment cooling step

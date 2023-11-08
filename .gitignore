@@ -476,3 +476,4 @@ src/abaqus1.rec
 src/abaqus.rpy
 src/Abaqus_PBF_micro_thermal/__pycache__/Generate_Output_Video.cpython-39.pyc
 src/Abaqus_PBF_micro_thermal/__pycache__/run.cpython-39.pyc
+src/Abaqus_PBF_micro_thermal/__pycache__/run.cpython-38.pyc
