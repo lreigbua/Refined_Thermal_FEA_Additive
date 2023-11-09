@@ -435,8 +435,6 @@ data/
 input/jsonData.json
 input/Comp_geometry_trapeze_w_holes.sat
 input/Comp_geometry_trapeze.sat
-input/Comp_geometry_my_rectangle_true_height.sat
-input/Comp_geometry_my_rectangle_09mm_height.sat
 input/Comp_geometry_cylinder.sat
 input/Comp_Geometry.sat
 data/abaqus.rpy.11
@@ -452,18 +450,11 @@ src/Generate_scanpath_from_mtt.ipynb
 plot_paths.mlx
 input/FourBlocks-RBV-60Microns.mtt
 input/Topology_Optimization_1.mtt
-input/Rectangular_Prism_Build_1_stripe.mtt
-input/Rectangular_Prism_Build_1_meander.mtt
 input/Cube_with_holes_made_with_SW.SAT
 input/cube_with_holes_2_mod.STEP
 input/cube_with_holes_2.stp
 input/Cube_with_holes.mtt
 input/cube_with_holes.igs
-input/1mm_cube.mtt
-input/10mm_cube_stripe.mtt
-input/10mm_cube_meander.mtt
-input/10mm_Cube.sat
-input/096mm_Cube.sat
 src/Abaqus_PBF_micro_thermal/__pycache__/utils.cpython-39.pyc
 src/Abaqus_PBF_micro_thermal/__pycache__/utils.cpython-38.pyc
 src/Abaqus_PBF_micro_thermal/__pycache__/layer_class.cpython-39.pyc
