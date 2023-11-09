@@ -14,7 +14,6 @@ import numpy as np
 import os
 
 
-
 def Generate_scanpath_from_mtt(self):
         
     def Calculate_distance(coords0,coords1): #Calculate distance between two points

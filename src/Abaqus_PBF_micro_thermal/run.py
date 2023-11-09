@@ -104,7 +104,7 @@ def run(self):
             else:
                 shutil.copy(f"./INP_default.inp",Job_name+".inp")
 
-            os.system(f"abaqus job={Job_name} cpus=16 interactive ask_delete=OFF")
+            os.system(f"abaqus job={Job_name} cpus={self.input_file_dict['cpus']} interactive ask_delete=OFF")
 
     #change directory back to user directory
     os.chdir(self.user_path)
