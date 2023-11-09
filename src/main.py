@@ -10,4 +10,4 @@ Simulation.Generate_scanpath_from_mtt()
 Simulation.run()
 
 #Post Process
-# Simulation.Generate_Output_Video()
+Simulation.Generate_Output_Video()

@@ -3,6 +3,9 @@ try:
     import pyslm.analysis
     import pyslm.visualise
     import pyslm.hatching
+
+    from pyslm import geometry as slm
+    from libSLM import mtt
 except:
     raise Exception("PySLM is not installed. Please install PySLM with libSLM and translators or input your own scanpath as event series files.")
 
@@ -10,23 +13,21 @@ import numpy as np
 
 import os
 
-from pyslm import geometry as slm
-from libSLM import mtt
+
 
 def Generate_scanpath_from_mtt(self):
         
     def Calculate_distance(coords0,coords1): #Calculate distance between two points
         return np.sqrt((coords1[0]-coords0[0])**2 + (coords1[1]-coords0[1])**2)
 
-    print("Generating scanpaths from mtt file: "+self.input_file_dict["AM_build_file"])
+    print("Generating scanpaths from mtt file: "+str(self.AM_build_file)+" ...")
 
-    #Create data folder
-    path = self.input_file_dict["output_path"]
-    if not os.path.exists(path):
-        os.mkdir(path)
+    # Create output data folder if it does not exist:
+    if not self.Output_Path.exists(): # if output folder does not exit
+        os.mkdir(self.Output_Path)
 
     #Create scanpath folder
-    path = self.input_file_dict["output_path"] + "/scanpath"
+    path = self.Output_Path / "scanpath"
     if not os.path.exists(path):
         os.mkdir(path)
 
@@ -36,14 +37,13 @@ def Generate_scanpath_from_mtt(self):
     dosing_time = self.input_file_dict["dosing_time"] #s
     Power_value = self.input_file_dict["Laser_Power"] #W
     layer_thickness = self.input_file_dict["layer_thickness"] #mm
-    inter_layer_time = self.input_file_dict["inter_layer_time"] #s
     offset = self.input_file_dict["offset"]
     substrate_dimensions = self.input_file_dict["substrate_dimensions"] #mm
-    AM_build_file = self.input_file_dict["AM_build_file"]
+    AM_build_file = self.AM_build_file
 
     #Read mtt file
     mttReader = mtt.Reader()
-    mttReader.setFilePath(AM_build_file)
+    mttReader.setFilePath(str(AM_build_file.resolve()))
     mttReader.parse()
 
     layers = mttReader.layers
@@ -118,13 +118,13 @@ def Generate_scanpath_from_mtt(self):
 
 
         #Save heat_event_series
-        np.savetxt(self.input_file_dict["output_path"] + "/scanpath" + "/Heat_Series_ly%i.csv" %(n_layer), heat_event, delimiter=",")
+        np.savetxt(self.Output_Path / "scanpath" / f"Heat_Series_ly{n_layer}.csv" , heat_event, delimiter=",")
         
         #Need to create roller_event_series
         roller_event = np.array([0,0,0,layer_thickness*n_layer,1])
         roller_event = np.vstack((roller_event, np.array([dosing_time,0,substrate_dimensions[1],layer_thickness*n_layer,1])))
 
-        np.savetxt(self.input_file_dict["output_path"] + "/scanpath" + "/Roller_Series_ly%i.csv" %(n_layer), roller_event, delimiter=",")
+        np.savetxt(self.Output_Path / "scanpath" / f"Roller_Series_ly{n_layer}.csv", roller_event, delimiter=",")
 
         n_layer+=1
 

@@ -11,8 +11,8 @@
 "dosing_time" : 0.2,
 "inter_layer_time" : 8.0,
 "offset" : 0.085,
-"component_geometry_path" : "D:/mkb21147/Abaqus/Macro_Models/Process_Structure_FEA_SLM_w_refinement/Process_Structure_FEA_SLM_w_refinement_clone/Process_Structure_FEA_SLM_w_refinement/input/096mm_Cube.sat",
-"AM_build_file" : "D:/mkb21147/Abaqus/Macro_Models/Process_Structure_FEA_SLM_w_refinement/Process_Structure_FEA_SLM_w_refinement_clone/Process_Structure_FEA_SLM_w_refinement/input/1mm_cube.mtt",
-"scanpath_path" : "D:/mkb21147/Abaqus/Macro_Models/Process_Structure_FEA_SLM_w_refinement/Process_Structure_FEA_SLM_w_refinement_clone/Process_Structure_FEA_SLM_w_refinement/1mm_cube/scanpath",
-"output_path": "D:/mkb21147/Abaqus/Macro_Models/Process_Structure_FEA_SLM_w_refinement/Process_Structure_FEA_SLM_w_refinement_clone/Process_Structure_FEA_SLM_w_refinement/1mm_cube"
+"component_geometry_path" : "096mm_Cube.sat",
+"AM_build_file" : "1mm_cube.mtt",
+"scanpath_path" : "",
+"output_path": "../1mm_cube"
 }

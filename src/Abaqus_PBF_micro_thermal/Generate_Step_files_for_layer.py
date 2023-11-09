@@ -111,9 +111,9 @@ TEMP
 
     #read scanpath from event series file:
     if self.input_file_dict["scanpath_path"] == "":
-        path = self.input_file_dict["output_path"] + "/scanpath" + "/Heat_Series_ly%i.csv" %(layer)
+        path = self.Output_Path / "scanpath" / f"Heat_Series_ly{layer}.csv"
     else:
-        path = self.input_file_dict["scanpath_path"] + "/Heat_Series_ly%i.csv" %(layer)
+        path = self.scanpath_path / f"Heat_Series_ly{layer}.csv"
         
     heat_event_series = np.loadtxt(path, delimiter=",", usecols=(0,1,2,3))
 

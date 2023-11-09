@@ -1,4 +1,5 @@
 src/__pycache__/
+input/scanpath/
 date_read_mtt_cube_with_holes/
 data_read_mtt/
 10mm_cube/
