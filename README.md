@@ -9,7 +9,10 @@ It uses a high time resolution only in the layers specified, where temperature w
 
 - Abaqus (tested on 2022 only)
 - Numpy
-- Pyslm with mtt translator (https://github.com/drlukeparry/libSLM)
+
+Optional:
+- Pyslm with mtt translator for translating (https://github.com/drlukeparry/libSLM)
+- moviepy to generate videos of simulation
 
 ## How to run
 
