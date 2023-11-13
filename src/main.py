@@ -7,7 +7,7 @@ Simulation = Abaqus_PBF_micro_thermal_class("../input/1mm_cube.json")
 #Simulation.Generate_scanpath_from_mtt()
 
 #Run Simulation
-Simulation.run()
+#Simulation.run()
 
 #Post Process
 Simulation.Generate_Output_Video()

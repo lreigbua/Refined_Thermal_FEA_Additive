@@ -124,7 +124,7 @@ TEMP
     # time = np.append(time,time[-1]+inter_layer_time-dosing_time)
 
     #Calculate scan time
-    scan_time = time[-1] 
+    scan_time = time[-1] - dosing_time
 
 
 #Calculate intersection times with sphere around points of interest
@@ -175,7 +175,7 @@ TEMP
     if layer_is_of_interest:
 
         freq_scan = ", TIME POINTS=LASERON, TIME MARKS=YES"
-        increment = scan_time/12
+        increment = scan_time/8
 
         short_increment = 0.001
 
@@ -208,7 +208,7 @@ TEMP
         #print rolling step
         f.write(step_text.format(1, 1 ,dosing_time/4 , dosing_time, dosing_time/4, freq, HO_all))
         #print scanning step
-        f.write(step_text.format(2, 2 , scan_time/20 , scan_time, scan_time/12, freq_scan, HO_all))
+        f.write(step_text.format(2, 2 , increment, scan_time, increment, freq_scan, HO_all))
         #prints short increment cooling step
         f.write(step_text.format(3, 3 , 0.2, 0.2, 0.2,freq, HO_all))
         #print long increment cooling step

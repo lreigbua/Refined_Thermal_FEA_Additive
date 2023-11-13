@@ -30,7 +30,7 @@ def run(self):
     def add_mesh_to_mesh_solution_mapping(layer_number):
         f = open("./INP_default.inp", "r")
         text = f.read()
-        text = text.replace("***Initial Conditions, type=TEMPERATURE, file=.\Job-layer-2.odb, INTERPOLATE",f"*Initial Conditions, type=TEMPERATURE, file=.\Job-layer-{layer_number-1}.odb, INTERPOLATE")
+        text = text.replace("***Initial Conditions, type=TEMPERATURE, file=.\Job-layer-2.odb, INTERPOLATE",f"*Initial Conditions, type=TEMPERATURE, file=Job-layer-{layer_number-1}.odb, INTERPOLATE")
         f.close()
 
         f = open(f"INP_w_mapping.inp", "w")
@@ -104,7 +104,21 @@ def run(self):
             else:
                 shutil.copy(f"./INP_default.inp",Job_name+".inp")
 
-            os.system(f"abaqus job={Job_name} cpus={self.input_file_dict['cpus']} interactive ask_delete=OFF")
+            if self.input_file_dict["run_with_slurm"] == "yes": #run Abaqus with slurm
+                f = open(self.module_path / "Run_abaqus_slurm.sh", "r")
+                text = f.read()
+                text = text.replace("INP",Job_name)
+                text = text.replace("$$number_of_tasks",str(self.input_file_dict["cpus"]))
+                f.close()
+
+                f = open(f"Run_abaqus_slurm.sh", "w")
+                f.write(text)
+                f.close()
+
+                os.system(f"sbatch -W Run_abaqus_slurm.sh")
+
+            else:
+                os.system(f"abaqus job={Job_name} cpus={self.input_file_dict['cpus']} interactive ask_delete=OFF")
 
     #change directory back to user directory
     os.chdir(self.user_path)

@@ -1,21 +1,19 @@
-try:
-    import pyslm
-    import pyslm.analysis
-    import pyslm.visualise
-    import pyslm.hatching
-
-    from pyslm import geometry as slm
-    from libSLM import mtt
-except:
-    raise Exception("PySLM is not installed. Please install PySLM with libSLM and translators or input your own scanpath as event series files.")
-
-import numpy as np
-
-import os
-
-
 def Generate_scanpath_from_mtt(self):
-        
+    try:
+        import pyslm
+        import pyslm.analysis
+        import pyslm.visualise
+        import pyslm.hatching
+
+        from pyslm import geometry as slm
+        from libSLM import mtt
+    except:
+        raise Exception("PySLM is not installed. Please install PySLM with libSLM and translators or input your own scanpath as event series files.")
+
+    import numpy as np
+    import os
+
+
     def Calculate_distance(coords0,coords1): #Calculate distance between two points
         return np.sqrt((coords1[0]-coords0[0])**2 + (coords1[1]-coords0[1])**2)
 

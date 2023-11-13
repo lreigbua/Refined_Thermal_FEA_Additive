@@ -11,9 +11,10 @@
 "dosing_time" : 0.2,
 "inter_layer_time" : 8.0,
 "offset" : 0.085,
-"cpus" : 1,
+"cpus" : 4,
 "component_geometry_path" : "096mm_Cube.sat",
 "AM_build_file" : "1mm_cube.mtt",
-"scanpath_path" : "",
-"output_path": "../1mm_cube"
+"scanpath_path" : "scanpath_1mm_cube",
+"output_path": "../1mm_cube",
+"run_with_slurm": "yes"
 }

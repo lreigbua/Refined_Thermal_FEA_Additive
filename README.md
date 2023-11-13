@@ -9,6 +9,7 @@ It uses a high time resolution only in the layers specified, where temperature w
 
 - Abaqus (tested on 2022 only)
 - Numpy
+- scikit-spatial
 
 Optional:
 - Pyslm with mtt translator for translating (https://github.com/drlukeparry/libSLM)

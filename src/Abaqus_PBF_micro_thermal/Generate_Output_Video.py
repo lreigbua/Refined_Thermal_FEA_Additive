@@ -1,9 +1,14 @@
+try:
+    from moviepy.editor import *
+except:
+    print("waring: Moviepy not installed")
 import os
 from pathlib import Path
-from moviepy.editor import *
 import json
 
 def Generate_Output_Video(self):
+
+
 
     os.chdir(self.Output_Path)
 

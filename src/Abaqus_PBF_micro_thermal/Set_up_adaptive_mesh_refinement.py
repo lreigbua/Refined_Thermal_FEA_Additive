@@ -77,7 +77,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
     newData = {"component_dimensions": component_dimensions}
     dict_var_of_json.update(newData)
 
-    file = open('.\jsonData.json', 'w')
+    file = open('jsonData.json', 'w')
     json.dump(dict_var_of_json, file, indent=4, sort_keys=True)
     file.close()
 
@@ -329,11 +329,15 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         self.slices_array[-1].create_bot_surface()  #creates bottom surface of last slice
 
         #Creates tie
-        mdb.models['main'].Tie(adjust=ON, main=
-            mdb.models['main'].rootAssembly.surfaces['subst_in_top_surface'], name=
-            'Component_to_substrate', positionToleranceMethod=COMPUTED, secondary=
-            mdb.models['main'].rootAssembly.surfaces[self.slices_array[-1].bot_surface_name], thickness=
-            ON, tieRotations=ON)
+        # mdb.models['main'].Tie(adjust=ON, main=
+        #     mdb.models['main'].rootAssembly.surfaces['subst_in_top_surface'], name=
+        #     'Component_to_substrate', positionToleranceMethod=COMPUTED, secondary=
+        #     mdb.models['main'].rootAssembly.surfaces[self.slices_array[-1].bot_surface_name], thickness=
+        #     ON, tieRotations=ON)
+
+        mdb.models['main'].Tie(adjust=ON, master=mdb.models['main'].rootAssembly.surfaces['subst_in_top_surface'], name=
+            'Component_to_substrate', positionToleranceMethod=COMPUTED, slave=
+            mdb.models['main'].rootAssembly.surfaces[self.slices_array[-1].bot_surface_name])
 
     #tie both substrates
         #Create Surfaces
@@ -344,17 +348,17 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
             mdb.models['main'].rootAssembly.instances['Substrate_out-1'].faces.getByBoundingBox(-gap,-gap,-1,gap+self.component_dimensions[0],gap+self.component_dimensions[1],1))        
 
         #Creates tie
-        mdb.models['main'].Tie(adjust=ON, main=
+        mdb.models['main'].Tie(adjust=ON, master=
             mdb.models['main'].rootAssembly.surfaces['subst_out_in_surface'], name=
-            'subst_to_subst', positionToleranceMethod=COMPUTED, secondary=
+            'subst_to_subst', positionToleranceMethod=COMPUTED, slave=
             mdb.models['main'].rootAssembly.surfaces['subst_in_out_surface'], thickness=
             ON, tieRotations=ON)
 
 
     def tie_slices(self,top_slice,bot_slice):
-        mdb.models['main'].Tie(adjust=ON, main=
+        mdb.models['main'].Tie(adjust=ON, master=
             mdb.models['main'].rootAssembly.surfaces[bot_slice.top_surface_name], name=
-            'Constraint_'+'Slice-'+top_slice.ID+'_and_'+'Slice-'+bot_slice.ID, positionToleranceMethod=COMPUTED, secondary=
+            'Constraint_'+'Slice-'+top_slice.ID+'_and_'+'Slice-'+bot_slice.ID, positionToleranceMethod=COMPUTED, slave=
             mdb.models['main'].rootAssembly.surfaces[top_slice.bot_surface_name], thickness=
             ON, tieRotations=ON)
 
@@ -386,7 +390,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
             getMemoryFromAnalysis=True, historyPrint=OFF, memory=90, memoryUnits=
             PERCENTAGE, model='main', modelPrint=OFF, multiprocessingMode=DEFAULT, 
             name='layer-'+current_layer_number, nodalOutputPrecision=SINGLE, numCpus=1, numDomains=1, 
-            numGPUs=0, numThreadsPerMpiProcess=1, parallelizationMethodExplicit=DOMAIN, 
+            numGPUs=0, parallelizationMethodExplicit=DOMAIN, 
             queue=None, resultsFormat=ODB, scratch='', type=ANALYSIS, userSubroutine=''
             , waitHours=0, waitMinutes=0)
         
