@@ -17,11 +17,11 @@ class Abaqus_PBF_micro_thermal_class:
         self.Output_Path = self.input_file_parent_folder / self.input_file_dict["output_path"] #output folder path, specified by user
         self.component_geometry_path = self.input_file_parent_folder / self.input_file_dict["component_geometry_path"] #component geometry path, specified by user
         self.AM_build_file = self.input_file_parent_folder / self.input_file_dict["AM_build_file"] #AM build file path, specified by user if wants to translate it
-        self.scanpath_path = self.input_file_parent_folder / self.input_file_dict["scanpath_path"] #scanpath folder path, specified by user if use own scanpath
+        self.scanpath_folder = self.input_file_parent_folder / self.input_file_dict["scanpath_folder"] #scanpath folder path, specified by user if use own scanpath
 
         self.eps = 1e-9 #very small number for rounding errors
 
-    #import methods from other files:
+#import methods from other files:
 
     #methods for pre-processing
     from .Generate_scanpath_from_mtt import Generate_scanpath_from_mtt
@@ -32,4 +32,5 @@ class Abaqus_PBF_micro_thermal_class:
     
     #methods for post-processing
     from .Generate_Output_Video import Generate_Output_Video
+    from .Generate_temperature_histories import Generate_temperature_histories
 

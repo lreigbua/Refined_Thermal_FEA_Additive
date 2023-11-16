@@ -1,14 +1,14 @@
 try:
     from moviepy.editor import *
 except:
-    print("waring: Moviepy not installed")
+    print("Warning: Moviepy not installed")
 import os
 from pathlib import Path
 import json
 
 def Generate_Output_Video(self):
 
-
+    print("Generating Output Video...")
 
     os.chdir(self.Output_Path)
 
@@ -19,8 +19,7 @@ def Generate_Output_Video(self):
     layer_thickness=dict_var_of_json['layer_thickness']
     component_dimensions=dict_var_of_json['component_dimensions']
 
-    n_layers=component_dimensions[2]/layer_thickness
-    n_layers=6
+    n_layers=self.number_of_layers
 
 
     os.system(f"abaqus cae noGUI={ str( self.module_path / f'Generate_animation_files_for_each_job.py -- {int(n_layers)}' ) }")  #Create Individual Videos
@@ -35,9 +34,11 @@ def Generate_Output_Video(self):
     final_video= concatenate_videoclips(clips)
 
     slowed_video = final_video.fx( vfx.speedx, 0.5)
-    resized_video=slowed_video.resize( (1080,720) )
+    # resized_video=slowed_video.resize( (1080,720) )
 
-    resized_video.write_videofile("Merged_Videos.mp4")
+    # resized_video.write_videofile("Merged_Videos.mp4")
+
+    slowed_video.write_videofile("Merged_Videos.mp4")
 
     os.chdir(self.user_path)
 

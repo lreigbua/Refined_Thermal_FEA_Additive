@@ -1,0 +1,20 @@
+{
+"layer_thickness" : 0.06,
+"number_of_refinements" : 5,
+"points_of_interest": [[4.92, 4.92, 0.06],[4.92, 4.92, 4.92]],
+"radius_sphere_of_interest": 0.18,
+"substrate_dimensions" : [80.64,80.64,9.6],
+"Laser_Power" : 375000.0,
+"Laser_Speed" : 1029.0,
+"jump_speed" : 2000.0,
+"hatch_spacing" : 0.12,
+"dosing_time" : 0.2,
+"inter_layer_time" : 8.0,
+"offset" : 0.085,
+"cpus" : 4,
+"component_geometry_path" : "10mm_Cube.sat",
+"AM_build_file" : "1mm_cube.mtt",
+"scanpath_folder" : "scanpath_10_mm_cube_meander",
+"output_path": "../data_10mm_cube",
+"run_with_slurm": "yes"
+}

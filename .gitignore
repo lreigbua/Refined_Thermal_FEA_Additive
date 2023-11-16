@@ -1,4 +1,6 @@
-10mm_cube\
+10mm_cube/
+data_10mm_cube/
+src/Abaqus_PBF_micro_thermal/__pycache__/
 src/conda_initialise-3.9.sh
 10mm_cube/
 src/__pycache__/

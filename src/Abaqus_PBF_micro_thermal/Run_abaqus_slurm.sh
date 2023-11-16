@@ -11,7 +11,7 @@
 #SBATCH --export=ALL
 #
 # Run in the standard partition (queue)
-#SBATCH --partition=standard
+#SBATCH --partition=dev
 #
 # Specify project account
 #SBATCH --account=rahimi-omp
@@ -20,7 +20,7 @@
 #SBATCH --ntasks=$$number_of_tasks --nodes=1
 #
 # Specify (hard) runtime (HH:MM:SS)
-#SBATCH --time=6:00:00
+#SBATCH --time=0:59:00
 #
 # Job name
 #SBATCH --job-name=abaqus_test

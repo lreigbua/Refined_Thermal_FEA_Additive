@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 from skspatial.objects import Line, Sphere
 
@@ -22,7 +23,7 @@ def Generate_Step_files_for_layer(self,layer):
     
     def Calculate_sphere_intersection(coords0,coords1,point_of_interest):
         #Calculates the two points of intersection between a scan line and a sphere around a given point of interest
-        sphere = Sphere(point_of_interest, 0.18)
+        sphere = Sphere(point_of_interest, self.input_file_dict["radius_sphere_of_interest"])
         line = Line.from_points(coords0, coords1)
 
         try:
@@ -35,6 +36,11 @@ def Generate_Step_files_for_layer(self,layer):
     layer_height = layer * self.input_file_dict["layer_thickness"]
     scan_speed = self.input_file_dict["Laser_Speed"] #mm/s
     jump_speed = self.input_file_dict["jump_speed"] #mm/s
+
+
+    #Delete previous step files:
+    if os.path.isfile('Steps.inp'):
+        os.remove('Steps.inp')
 
     step_text="""**
 ** ----------------------------------------------------------------
@@ -100,9 +106,11 @@ NT
 *Element Output, elset=SET-HO-layer-{}
 TEMP
     **"""
-        
+    points_of_interest_np = np.array(self.input_file_dict["points_of_interest"])
+    h_o_i = points_of_interest_np[:,2]
+
     HO_all=''
-    for height in self.input_file_dict["heights_of_interest"]:
+    for height in h_o_i:
         if layer_height+self.eps-height >= 0.0: # this if is to request only history outputs of layers than have been printed
             layer_number = round(height/self.input_file_dict["layer_thickness"])
             HO_all+=HO_text.format(layer_number,layer_number)
@@ -110,10 +118,10 @@ TEMP
 
 
     #read scanpath from event series file:
-    if self.input_file_dict["scanpath_path"] == "":
+    if self.input_file_dict["scanpath_folder"] == "":
         path = self.Output_Path / "scanpath" / f"Heat_Series_ly{layer}.csv"
     else:
-        path = self.scanpath_path / f"Heat_Series_ly{layer}.csv"
+        path = self.scanpath_folder / f"Heat_Series_ly{layer}.csv"
         
     heat_event_series = np.loadtxt(path, delimiter=",", usecols=(0,1,2,3))
 
@@ -135,7 +143,7 @@ TEMP
     #Calculate point of interest for this layer:
     layer_is_of_interest = False
     for point in points_of_interest:
-        if layer_height >= point[2]-self.eps and abs(layer_height - point[2] + self.eps) <= 0.18:
+        if layer_height >= point[2]-self.eps and abs(layer_height - point[2] + self.eps) <=self.input_file_dict["radius_sphere_of_interest"]:
             point_of_interest = point
             layer_is_of_interest = True
             break
@@ -214,6 +222,11 @@ TEMP
         #print long increment cooling step
         f.write(step_text.format(4, 4 , 1.0, inter_layer_time, 1.0,freq, HO_all))
 
+        #add long cooling if last layer:
+        if layer == self.number_of_layers:
+            f.write(step_text.format(30, 30, 1.0, inter_layer_time, 1.0,freq, HO_all))
+
+
     else:
 
         f = open('Steps.inp', 'w')
@@ -225,4 +238,9 @@ TEMP
         f.write(step_text.format(3, 3 , 0.2, 0.2, 0.2,freq, HO_all))
         #print long increment cooling step
         f.write(step_text.format(4, 4 , 1.0, inter_layer_time, 1.0,freq, HO_all))
+
+        #add long cooling if last layer:
+        if layer == self.number_of_layers:
+            f.write(step_text.format(5, 5, 1.0, 60, 5.0,freq, HO_all))
+        
     

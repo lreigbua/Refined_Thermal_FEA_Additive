@@ -15,6 +15,10 @@ from connectorBehavior import *
 import numpy as np
 import json
 
+
+# This abaqus python script generates all of the meshes that will be used in the simulation and saves them in separate inp files. One mesh will be generated for each printed layer.
+
+
 def assign_section_to_part(part_name,section_name):
         mdb.models['main'].parts[part_name].SectionAssignment(offset=0.0,
         offsetField='', offsetType=MIDDLE_SURFACE, region=
@@ -43,6 +47,7 @@ def closest_layer_height(given_height):
 class Octree_mesh_generation: #this class performs octree mesh generation of a geometry at a given height
 
     material_names_list = ['NO_TRANS_TI6AL4V','ABQ_PHASE_TRANS_TI6AL4V']
+    eps = 0.000001
 
     file = open('./input_file.json', 'r')
     dict_var_of_json = json.load(file)
@@ -50,9 +55,10 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
 
     layer_thickness=dict_var_of_json['layer_thickness']
     number_of_refinements=dict_var_of_json['number_of_refinements']
-    heights_of_interest=dict_var_of_json['heights_of_interest']
+    points_of_interest=np.array(dict_var_of_json['points_of_interest'])
+    heights_of_interest=list(points_of_interest[:,2])
     heights_of_interest.sort(reverse=True) #sorts form high to low
-    points_of_interest=dict_var_of_json['points_of_interest']
+    radius_sphere_of_interest=dict_var_of_json['radius_sphere_of_interest']
     component_geometry_path=dict_var_of_json['component_geometry_path']
     substrate_dimensions = dict_var_of_json['substrate_dimensions']
 
@@ -143,17 +149,17 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
                 self.slices_array[slice_key].mesh_refinement = self.layer_thickness * 2**(n-1)
 
             if n==0 or n==1:
-                c=0
+                decrease_resolution_flag=True
                 for height in self.heights_of_interest:    #decreases resolution if layer not of interest
 
                     height_top=closest_layer_height(height)
-                    if abs(self.current_height-height_top)>0.000001:
-                        c+=1
+                    if self.current_height >= height_top-self.eps and abs(self.current_height - height_top + self.eps) <= self.radius_sphere_of_interest: #if layer is in the top half of sphere of interest
+                        decrease_resolution_flag=False
                 
-                if c == len(self.heights_of_interest):
+                if decrease_resolution_flag:
                     self.slices_array[slice_key].mesh_refinement*=2
 
-            #This is to slice layer of interest they have already been printed
+            #This is to slice layer of interest that have already been printed
             if n!=0:
                 for height in self.heights_of_interest:
                     
@@ -407,23 +413,25 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
 
         height_c_top=round(height_c_top,2)
 
-        # position=np.array([self.component_dimensions[0]/2,self.component_dimensions[1]/2,height_c_top])
+        position=np.array([self.component_dimensions[0]/2,self.component_dimensions[1]/2,height_c_top])
 
-        position=np.array([self.layer_thickness/2,self.layer_thickness/2,height_c_top])
+        # position=np.array([self.layer_thickness/2,self.layer_thickness/2,height_c_top])
         
 
         #set bounding box positions of x and y
-        positionMax=position+slice.mesh_refinement-0.001
-        positionMin=position-slice.mesh_refinement-0.001
+        positionMax=position+slice.mesh_refinement*1.1
+        positionMin=position-slice.mesh_refinement*1.1
 
         #set bounding box positions of z
         positionMax[2]=height_c_top+slice.mesh_refinement+0.0000001
         # positionMin[2]=height_c_top-slice.mesh_refinement-0.0000001
         positionMin[2]=height_c_top-slice.mesh_refinement*1.1-0.0000001
 
-        # print(height_c_top)
-        # print(positionMax)
-        # print(positionMin)
+
+        print(slice.mesh_refinement)
+        print(height_c_top)
+        print(positionMax)
+        print(positionMin)
 
 
         # mdb.models['main'].rootAssembly.Set(elements=
@@ -612,8 +620,7 @@ while abs(Process.component_height + Process.layer_thickness - Process.current_h
     Process.current_height=round(Process.current_height+Process.layer_thickness,2)
 
 
-# Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
-# Process.current_height=39*0.06
-
+# Process = Octree_mesh_generation() #for only one layer
+# Process.current_height=1*0.06
 # Process.run()
-# Process.current_height=round(Process.current_height+Process.layer_thickness,2)
+
