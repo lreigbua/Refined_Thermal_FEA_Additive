@@ -1,0 +1,20 @@
+{
+"layer_thickness" : 0.06,
+"number_of_refinements" : 5,
+"points_of_interest": [[22.5, 5.4, 1.98],[22.5, 5.4, 5.16],[22.5, 5.4, 8.28]],
+"radius_sphere_of_interest": 0.18,
+"substrate_dimensions" : [80.64,80.64,9.6],
+"Laser_Power" : 375000.0,
+"Laser_Speed" : 1029.0,
+"jump_speed" : 2000.0,
+"hatch_spacing" : 0.12,
+"dosing_time" : 0.2,
+"inter_layer_time" : 12.0,
+"offset" : 0.085,
+"cpus" : 8,
+"AM_build_file" : "",
+"component_geometry_path" : "Rectangle_build_1_corrected_for_mesh.sat",
+"scanpath_folder" : "scanpath_build_1_meander_default",
+"output_path": "../data_build_1_meander_default",
+"run_with_slurm": "yes"
+}
