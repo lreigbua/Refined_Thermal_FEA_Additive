@@ -1,7 +1,7 @@
 {
 "layer_thickness" : 0.06,
 "number_of_refinements" : 5,
-"points_of_interest": [[4.92, 4.92, 0.06],[4.92, 4.92, 4.92]],
+"points_of_interest": [[4.92, 4.92, 0.06],[4.92, 4.92, 4.92],[4.92, 4.92, 9.48]],
 "radius_sphere_of_interest": 0.18,
 "substrate_dimensions" : [80.64,80.64,9.6],
 "Laser_Power" : 375000.0,

@@ -332,6 +332,8 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         mdb.models['main'].rootAssembly.Surface(name='subst_in_top_surface', side1Faces=
             mdb.models['main'].rootAssembly.instances['Substrate_in-1'].faces.getByBoundingBox(-10000000,-1000000,-0.00001,10000000,1000000,0.00001))        
         
+        self.slices_array[-1].height_bot=0.0  #sets bottom height of last slice to 0 to avoid bug, since it should always be at 0
+
         self.slices_array[-1].create_bot_surface()  #creates bottom surface of last slice
 
         #Creates tie
@@ -428,10 +430,10 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         positionMin[2]=height_c_top-slice.mesh_refinement*1.1-0.0000001
 
 
-        print(slice.mesh_refinement)
-        print(height_c_top)
-        print(positionMax)
-        print(positionMin)
+        # print(slice.mesh_refinement)
+        # print(height_c_top)
+        # print(positionMax)
+        # print(positionMin)
 
 
         # mdb.models['main'].rootAssembly.Set(elements=
@@ -598,7 +600,10 @@ class Slice:  #class to store attributes and methods for each slice
         self.bot_surface_name= 'Slice-'+self.ID+'-bot-surf'
         mdb.models['main'].rootAssembly.Surface(name=self.bot_surface_name, side1Faces=
             mdb.models['main'].rootAssembly.instances['Slice-'+self.ID+'-1'].faces.getByBoundingBox(-10000000,-1000000,self.height_bot-0.00001,10000000,1000000,self.height_bot+0.00001))
-        
+        # print(self.bot_surface_name)
+        # print(self.height_top)
+        # print(self.height_bot)
+
     def create_top_surface(self):
         self.top_surface_name= 'Slice-'+self.ID+'-top-surf'
         mdb.models['main'].rootAssembly.Surface(name=self.top_surface_name, side1Faces=
@@ -615,12 +620,12 @@ class Slice:  #class to store attributes and methods for each slice
 Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
 
 while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.000001: # Performs Octree mesh generation until it has been done for all layer heights
-    print(Process.current_height)
+    # print(Process.current_height)
     Process.run()
     Process.current_height=round(Process.current_height+Process.layer_thickness,2)
 
 
 # Process = Octree_mesh_generation() #for only one layer
-# Process.current_height=1*0.06
+# Process.current_height=97*0.06
 # Process.run()
 

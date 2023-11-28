@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from .utils import *
 
-def run(self, Generate_meshes = True):
+def run(self, Generate_meshes = True, from_layer = 1):
 
     #Some functions used only here
     def set_event_series_files(layer_number):
@@ -86,7 +86,7 @@ def run(self, Generate_meshes = True):
 
     print("Running Abaqus Jobs...")
     #Run simulation of each layer:
-    for i in range(self.number_of_layers): #This array of my_layer objects is generated in Generate_scanpath_from_mtt.py
+    for i in range(from_layer - 1, self.number_of_layers): #This array of my_layer objects is generated in Generate_scanpath_from_mtt.py
         
         # if i==4: 
         #     break
