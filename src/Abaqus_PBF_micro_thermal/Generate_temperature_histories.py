@@ -1,10 +1,11 @@
 import os
 from pathlib import Path
+import shutil
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-def Generate_temperature_histories(self):
+def Generate_temperature_histories(self, temp_history_output_path = ""):
 
     os.chdir(self.Output_Path)
 
@@ -52,8 +53,10 @@ def Generate_temperature_histories(self):
     plt.savefig(self.Output_Path / f"Temperature_histories_all_points.png")
     plt.close()
     
-
-
-
-
     os.chdir(self.user_path)
+
+    #Make copy of csv files into output folder specified by the user
+    if temp_history_output_path != "":
+        for point in points_of_interest:
+            path = self.Output_Path / f"Temperature_Element_at_heigt_{point[2]}.csv"
+            shutil.copy(path, temp_history_output_path / f"Temperature_Element_at_heigt_{point[2]}.csv")
