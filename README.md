@@ -1,5 +1,7 @@
 # Process_Structure_FEA_SLM_w_refinemen
 
+![Image Alt text](images/laser_and_mesh.png)  <img src="/images/Temperature_histories_all_points.png" width="350">
+
 ## Introduction
 
 This code solves a thermal model of a powder bed fusion process in Abaqus. It uses layer-wise adaptive mesh refinement to speed up the simulation. It is still a computationally expensive simulation.
