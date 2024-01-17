@@ -111,11 +111,12 @@ X, 0., 0., 0., Below
 *Parameter Table, type="ABQ_AM_MovingHeatSource_Advanced" ,label="ABQ_AM_MovingHeatSource_Advanced"
 False, False, Relative, 0., 0., -1., 1.
 *Parameter Table, type="ABQ_AM_MovingHeatSource_Goldak" ,label="ABQ_AM_MovingHeatSource_Goldak"
-3, 3, 3, 0.1, 0.06, 0.1, 0.1, 1., 1., 1.
+3, 3, 3, GOLDAK_PARAMS_SUBS, 1.
+**3, 3, 3, 0.1, 0.06, 0.1, 0.1, 1., 1., 1.
 *Parameter Table, type="ABQ_AM_MovingHeatSource_Uniform" ,label="ABQ_AM_MovingHeatSource_Uniform"
 0, 0, 0, 0., 0., 0., 0., 0., 0.
 *Property table, type="ABQ_AM_AbsorptionCoeff", label="ABQ_AM_AbsorptionCoeff"
-0.55
+APSORPTIVITY_SUBS
 **
 ** PREDEFINED FIELDS
 ** 
