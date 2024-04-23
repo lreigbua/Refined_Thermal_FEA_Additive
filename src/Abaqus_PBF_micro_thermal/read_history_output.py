@@ -63,6 +63,8 @@ for layer_number in layers_of_interest:
 
 nparray=np.array([0,1])
 
+thermocouple_results = np.empty((0,2))
+
 for layer_number in range(1,int(n_layers)):
 # for layer_number in range(73,76):
     Job_name="Job-layer-{}".format(layer_number)
@@ -115,8 +117,38 @@ for layer_number in range(1,int(n_layers)):
                                 data[:,0]=Temp_history_points_dict[layers_of_interest[index_of_previous_hist_point]]['data'][-1,0]
 
                         hist_point['data']=np.vstack((hist_point['data'],data))
+            
+            #Thermocouple:
+            if dict_var_of_json['add_thermocouple'] == "yes":
+                HO_set=odb.rootAssembly.nodeSets["SET-THERMOCOUPLE-HO"]
+                first_element_in_HO_set=HO_set.nodes[0][0].label
+                instance_name=HO_set.nodes[0][0].instanceName
+
+                for Hist_Reg_Name in odb.steps[step].historyRegions.keys():
+                    if str(first_element_in_HO_set) in Hist_Reg_Name and instance_name in Hist_Reg_Name:
+                        history_region_name = Hist_Reg_Name
+                        break
+                        
+                data=np.array(odb.steps[step].historyRegions[history_region_name].historyOutputs['NT11'].data)
+                
+                if(type(data)==type(nparray)):
+                        
+                    # print >> sys.__stdout__, hist_point['data']
+
+                    if len(thermocouple_results) > 1: 
+                        data[:,0]=data[:,0]+thermocouple_results[-1,0] #add previos time
+
+
+                    thermocouple_results=np.vstack((thermocouple_results,data))
+                
+                
+                
 
     odb.close()
 
 for hist_point in Temp_history_points_dict.values():
     np.savetxt("./Temperature_Element_at_heigt_{}.csv".format(hist_point['height']),hist_point['data'],delimiter=",")
+
+    
+if dict_var_of_json['add_thermocouple'] == "yes":
+    np.savetxt("./Temperature_Thermocouple.csv",thermocouple_results,delimiter=",")

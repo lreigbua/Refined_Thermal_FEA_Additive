@@ -14,7 +14,8 @@ from connectorBehavior import *
 
 import numpy as np
 import json
-
+import sys
+from decimal import Decimal
 
 # This abaqus python script generates all of the meshes that will be used in the simulation and saves them in separate inp files. One mesh will be generated for each printed layer.
 
@@ -46,12 +47,16 @@ def closest_layer_height(given_height):
 
 class Octree_mesh_generation: #this class performs octree mesh generation of a geometry at a given height
 
-    material_names_list = ['NO_TRANS_TI6AL4V','ABQ_PHASE_TRANS_TI6AL4V']
-    eps = 0.000001
+
 
     file = open('./input_file.json', 'r')
     dict_var_of_json = json.load(file)
     file.close()
+
+    material = str(dict_var_of_json["material"])
+
+    material_names_list = ["NO_TRANS_"+material,"ABQ_PHASE_TRANS_"+material]
+    eps = 0.000001
 
     layer_thickness=dict_var_of_json['layer_thickness']
     number_of_refinements=dict_var_of_json['number_of_refinements']
@@ -61,6 +66,8 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
     radius_sphere_of_interest=dict_var_of_json['radius_sphere_of_interest']
     component_geometry_path=dict_var_of_json['component_geometry_path']
     substrate_dimensions = dict_var_of_json['substrate_dimensions']
+    depth_subst_in = dict_var_of_json['depth_substrate_in']
+    thermocouple = dict_var_of_json['add_thermocouple']
 
         # Calculate component dimensions
     mdb.Model(modelType=STANDARD_EXPLICIT, name='main') #Creates a model named main, overwritting if needed
@@ -74,12 +81,18 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
     component_dimensions=mdb.models['main'].parts['Comp'].queryGeometry(printResults=FALSE)['boundingBox'][1]
     component_height=component_dimensions[2]
 
+
+    # print >> sys.__stdout__, str(component_height)
+    # print >> sys.__stdout__, str(layer_thickness)
+    # print >> sys.__stdout__, abs( Decimal(str(component_height)) % Decimal(str(layer_thickness)) - Decimal('0.0'))
+
+
     offset_datum_of_plane = component_dimensions[1]+0.1
 
-    assert abs(component_dimensions[2]%layer_thickness-0.0) < 0.0000001 , "Component height needs to be divisible by the layer thickness"
+    assert abs( Decimal(str(component_height)) % Decimal(str(layer_thickness)) - Decimal('0.0')) < 0.0000001 , "Component height needs to be divisible by the layer thickness"
 
 
-    #add new data to json file for matlab
+    #add new data to json file for use in python3
     newData = {"component_dimensions": component_dimensions}
     dict_var_of_json.update(newData)
 
@@ -148,7 +161,18 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
                 self.slices_array[slice_key].height_bot = self.slices_array[slice_key].height_top-current_possible_slice_thickness
                 self.slices_array[slice_key].mesh_refinement = self.layer_thickness * 2**(n-1)
 
-            if n==0 or n==1:
+            if n==0 or n==1 or n==2:
+                decrease_resolution_flag=True
+                for height in self.heights_of_interest:    #decreases resolution if layer not of interest
+
+                    height_top=closest_layer_height(height)
+                    if self.current_height >= height_top-self.eps and abs(self.current_height - height_top + self.eps) <= self.radius_sphere_of_interest: #if layer is in the top half of sphere of interest
+                        decrease_resolution_flag=False
+                
+                if decrease_resolution_flag:
+                    self.slices_array[slice_key].mesh_refinement*=3
+
+            if n==3:
                 decrease_resolution_flag=True
                 for height in self.heights_of_interest:    #decreases resolution if layer not of interest
 
@@ -239,9 +263,9 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
 
                 # if slice == self.slices_array[0] or slice.is_layer_of_interest: #if this is the top slice
                 if slice == self.slices_array[0]: #if this is the top slice
-                    assign_section_to_part('Slice-'+slice.ID,'Section-ABQ_PHASE_TRANS_TI6AL4V')
+                    assign_section_to_part('Slice-'+slice.ID,"Section-ABQ_PHASE_TRANS_"+self.material)
                 else:
-                    assign_section_to_part('Slice-'+slice.ID,'Section-NO_TRANS_TI6AL4V')
+                    assign_section_to_part('Slice-'+slice.ID,'Section-NO_TRANS_'+self.material)
             else:
                 del(self.slices_array[i-1])
 
@@ -254,11 +278,11 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
             point2=(-self.substrate_dimensions[0]/2+self.component_dimensions[0]/2, -self.substrate_dimensions[1]/2+self.component_dimensions[1]/2))
         mdb.models['main'].Part(dimensionality=THREE_D, name='Substrate_out', type=
             DEFORMABLE_BODY)
-        mdb.models['main'].parts['Substrate_out'].BaseSolidExtrude(depth=9.0, 
+        mdb.models['main'].parts['Substrate_out'].BaseSolidExtrude(depth=self.substrate_dimensions[2], 
             sketch=mdb.models['main'].sketches['__profile__'])
         
         #cur region for substrate in
-        DatumP_XY = mdb.models['main'].parts['Substrate_out'].DatumPlaneByPrincipalPlane(offset=9-0.96, principalPlane=XYPLANE)
+        DatumP_XY = mdb.models['main'].parts['Substrate_out'].DatumPlaneByPrincipalPlane(offset=self.substrate_dimensions[2]-self.depth_subst_in, principalPlane=XYPLANE)
         DatumAxisX = mdb.models['main'].parts['Substrate_out'].DatumAxisByPrincipalAxis(principalAxis=YAXIS)
         mdb.models['main'].ConstrainedSketch(gridSpacing=0.05, name='__profile__',
             sheetSize=20.0, transform=
@@ -294,7 +318,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
             point2=(-gap, -gap))
         mdb.models['main'].Part(dimensionality=THREE_D, name='Substrate_in', type=
             DEFORMABLE_BODY)
-        mdb.models['main'].parts['Substrate_in'].BaseSolidExtrude(depth=0.96, 
+        mdb.models['main'].parts['Substrate_in'].BaseSolidExtrude(depth=self.depth_subst_in, 
             sketch=mdb.models['main'].sketches['__profile__'])
         
         #Add to assembly
@@ -304,8 +328,8 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
             'Substrate_out-1', part=mdb.models['main'].parts['Substrate_out'])
         
         #Translate substrates to bottom
-        mdb.models['main'].rootAssembly.translate(instanceList=('Substrate_out-1',), vector=(0.0, 0.0, -9.0))
-        mdb.models['main'].rootAssembly.translate(instanceList=( 'Substrate_in-1',), vector=(0.0, 0.0, -0.96))
+        mdb.models['main'].rootAssembly.translate(instanceList=('Substrate_out-1',), vector=(0.0, 0.0, -self.substrate_dimensions[2]))
+        mdb.models['main'].rootAssembly.translate(instanceList=( 'Substrate_in-1',), vector=(0.0, 0.0, -self.depth_subst_in))
 
         #Mesh
         mdb.models['main'].parts['Substrate_out'].seedPart(deviationFactor=0.1,
@@ -313,7 +337,8 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         mdb.models['main'].parts['Substrate_out'].generateMesh()
         
         mdb.models['main'].parts['Substrate_in'].seedPart(deviationFactor=0.1,
-        minSizeFactor=0.1, size=self.slices_array[-1].mesh_refinement*2)
+        # minSizeFactor=0.1, size=self.slices_array[-1].mesh_refinement*2)
+        minSizeFactor=0.1, size=self.slices_array[-1].mesh_refinement)
         mdb.models['main'].parts['Substrate_in'].generateMesh()
 
         #Change mesh to thermal elements
@@ -323,8 +348,8 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         #create sets-1 and assign section
         mdb.models['main'].parts['Substrate_in'].Set(elements=mdb.models['main'].parts['Substrate_in'].elements, name='Set-1')
         mdb.models['main'].parts['Substrate_out'].Set(elements=mdb.models['main'].parts['Substrate_out'].elements, name='Set-1')
-        assign_section_to_part('Substrate_in','Section-NO_TRANS_TI6AL4V')
-        assign_section_to_part('Substrate_out','Section-NO_TRANS_TI6AL4V')
+        assign_section_to_part('Substrate_in','Section-NO_TRANS_'+self.material)
+        assign_section_to_part('Substrate_out','Section-NO_TRANS_'+self.material)
 
     #tie substrate_in to last slice
         
@@ -353,7 +378,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
             mdb.models['main'].rootAssembly.instances['Substrate_in-1'].faces.getByBoundingBox(-gap,-gap,-self.substrate_dimensions[2]-1,gap+self.component_dimensions[0],gap+self.component_dimensions[1],1))
         
         mdb.models['main'].rootAssembly.Surface(name='subst_out_in_surface', side1Faces=
-            mdb.models['main'].rootAssembly.instances['Substrate_out-1'].faces.getByBoundingBox(-gap,-gap,-1,gap+self.component_dimensions[0],gap+self.component_dimensions[1],1))        
+            mdb.models['main'].rootAssembly.instances['Substrate_out-1'].faces.getByBoundingBox(-gap,-gap,-self.depth_subst_in-1,gap+self.component_dimensions[0],gap+self.component_dimensions[1],1))        
 
         #Creates tie
         mdb.models['main'].Tie(adjust=ON, master=
@@ -391,7 +416,11 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         mdb.models['main'].rootAssembly.Set(cells=cells_list, name='Set-1')
 
     def create_job_and_write_inp(self):
-        current_layer_number = str(int(self.current_height/self.layer_thickness))
+        current_layer_number = str(int(round(self.current_height/self.layer_thickness)))
+
+        # print >> sys.__stdout__, self.current_height
+        # print >> sys.__stdout__, self.layer_thickness
+        # print >> sys.__stdout__, current_layer_number
 
         mdb.Job(activateLoadBalancing=False, atTime=None, contactPrint=OFF, 
             description='', echoPrint=OFF, explicitPrecision=SINGLE, 
@@ -497,12 +526,43 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
                         self.create_element_HO_set_at(des_height,slice,k)
                         # self.create_node_HO_set_at(des_height,slice,k)
                         k=k+1
+        
+        #Create history output for thermocouple
+        if self.thermocouple == "yes":
+            mdb.models['main'].rootAssembly.Set(
+                nodes=mdb.models['main'].rootAssembly.instances['Substrate_in-1'].nodes.getByBoundingBox(self.component_dimensions[0]/2-0.5,self.component_dimensions[1]/2-0.5,-self.depth_subst_in-0.1,self.component_dimensions[0]/2+0.5,self.component_dimensions[1]/2+0.5,-self.depth_subst_in+0.1),
+                name='Set-Thermocouple-HO'
+                )
 
 
 
+    def generate_sets_for_BCs(self):
 
+        #Create set for bottom substrate surface:
+        bottom_surf_z = -self.substrate_dimensions[2]
+        bot = bottom_surf_z - 0.0001
+        top = bottom_surf_z + 0.0001
 
-
+        # I add them 3 times because it does not work otherwise:
+        mdb.models['main'].rootAssembly.Set(
+            nodes=mdb.models['main'].rootAssembly.instances['Substrate_out-1'].nodes.getByBoundingBox(-1e6,-1e6,bot,1e6,1e6,top),
+            name='Set-subst_bot_surface'
+            )
+        
+        mdb.models['main'].rootAssembly.Set(
+            nodes=mdb.models['main'].rootAssembly.instances['Substrate_out-1'].nodes.getByBoundingBox(-1e6,-1e6,bot,1e6,1e6,top),
+            name='Set-subst_bot_surface'
+            )
+        
+        mdb.models['main'].rootAssembly.Set(
+            nodes=mdb.models['main'].rootAssembly.instances['Substrate_out-1'].nodes.getByBoundingBox(-1e6,-1e6,bot,1e6,1e6,top),
+            name='Set-subst_bot_surface'
+            )
+        
+# mdb.models['main'].rootAssembly.Set(
+#     elements=mdb.models['main'].rootAssembly.instances['Substrate_out-1'].elements.getByBoundingBox(-1e6,-1e6,-10,1e6,1e6,-7.0),
+#     name='subst_bot_surface'
+#     )
     
     def run(self):
         mdb.Model(modelType=STANDARD_EXPLICIT, name='main') #Creates a model named main, overwritting if needed
@@ -511,6 +571,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         self.generate_susbtrate()
         self.generate_tie_constraits()
         self.create_assembly_set_1()
+        self.generate_sets_for_BCs()
         self.generate_sets_for_history_outputs()
         self.create_job_and_write_inp()
 
@@ -594,15 +655,12 @@ class Slice:  #class to store attributes and methods for each slice
         mdb.models['main'].parts['Slice-'+self.ID].SectionAssignment(offset=0.0,
         offsetField='', offsetType=MIDDLE_SURFACE, region=
         mdb.models['main'].parts['Slice-'+self.ID].sets['Set-1'], sectionName=
-        'Section-NO_TRANS_TI6AL4V', thicknessAssignment=FROM_SECTION)
+        'Section-NO_TRANS_'+self.material, thicknessAssignment=FROM_SECTION)
 
     def create_bot_surface(self):
         self.bot_surface_name= 'Slice-'+self.ID+'-bot-surf'
         mdb.models['main'].rootAssembly.Surface(name=self.bot_surface_name, side1Faces=
             mdb.models['main'].rootAssembly.instances['Slice-'+self.ID+'-1'].faces.getByBoundingBox(-10000000,-1000000,self.height_bot-0.00001,10000000,1000000,self.height_bot+0.00001))
-        # print(self.bot_surface_name)
-        # print(self.height_top)
-        # print(self.height_bot)
 
     def create_top_surface(self):
         self.top_surface_name= 'Slice-'+self.ID+'-top-surf'
@@ -619,13 +677,16 @@ class Slice:  #class to store attributes and methods for each slice
 
 Process = Octree_mesh_generation() #Performs an octree mesh with tie surfaces for the given geometry at a given layer height
 
+
 while abs(Process.component_height + Process.layer_thickness - Process.current_height)>0.000001: # Performs Octree mesh generation until it has been done for all layer heights
-    # print(Process.current_height)
+
     Process.run()
     Process.current_height=round(Process.current_height+Process.layer_thickness,2)
 
+#     # assert 1<0
+
 
 # Process = Octree_mesh_generation() #for only one layer
-# Process.current_height=97*0.06
+# Process.current_height=20*0.04
 # Process.run()
 

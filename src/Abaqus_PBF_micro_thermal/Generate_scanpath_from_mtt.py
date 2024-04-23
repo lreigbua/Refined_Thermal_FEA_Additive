@@ -49,6 +49,20 @@ def Generate_scanpath_from_mtt(self):
     n_layer=1
     self.layer_objects_array=[]
 
+    #Calculate minimum x and y for relocation to origin
+    min_x = 1e12
+    min_y = 1e12
+    for layer in layers: #iterate through layers
+        Geoms = layer.getGeometry()
+        layer_path = np.empty((0,2), int)
+        for geom in Geoms: #iterate through geoms (hatches and contours) of each layer
+            layer_path = np.append(layer_path,geom.coords, axis=0)
+        min_x_this_layer =  min(layer_path[:,0])
+        min_y_this_layer =  min(layer_path[:,1])
+        min_x = min(min_x, min_x_this_layer)
+        min_y = min(min_y, min_y_this_layer)
+
+
     for layer in layers: #iterate through layers
 
         layer_height = layer_thickness * n_layer
@@ -101,8 +115,9 @@ def Generate_scanpath_from_mtt(self):
                 Power_column.append(p)
 
         #Relocate layer_path to origin (sample in mtt is not at origin):
-        min_coords = layer_path[np.argmin(np.sum(layer_path, axis=1))]
-        layer_path = layer_path - min_coords + np.array([offset,offset])
+        layer_path[:,0] = layer_path[:,0] - min_x + offset
+        layer_path[:,1] = layer_path[:,1] - min_y + offset
+        
 
         #Create event series array
         heat_event = np.hstack((np.array(time).reshape(-1, 1), layer_path, np.ones((len(layer_path),1)) * layer_height, np.array(Power_column).reshape(-1, 1)))

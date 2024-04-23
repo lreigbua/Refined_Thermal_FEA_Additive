@@ -97,9 +97,10 @@ def run(self, Generate_meshes = True, from_layer = 1, until_layer = "end"):
     text = f.read()
     text = text.replace("../src", str(self.module_path.resolve()) )
 
-    #Change goldak parameters and apsorptivity in INP_default.inp:
+    #Change goldak parameters and apsorptivity in INP_default.inp and initial temperature:
     text = text.replace("GOLDAK_PARAMS_SUBS",f"{self.input_file_dict['Goldak_a']}, {self.input_file_dict['Goldak_b']}, {self.input_file_dict['Goldak_cf']}, {self.input_file_dict['Goldak_cr']}, {self.input_file_dict['Goldak_ff']}, {self.input_file_dict['Goldak_fr']}")
     text = text.replace("APSORPTIVITY_SUBS",f"{self.input_file_dict['absorptivity']}")
+    text = text.replace("SET-1, 200.",f"SET-1, {self.input_file_dict['Chamber_Temperature']}")
     f.close()
 
     f = open(self.Output_Path / "INP_default.inp","w")
@@ -131,11 +132,11 @@ def run(self, Generate_meshes = True, from_layer = 1, until_layer = "end"):
         #     break
             
         layer_number = i + 1
-
-        #Generate step files:
-        self.Generate_Step_files_for_layer(layer_number)
+        
         #Set event series files for this layer:
         set_event_series_files(layer_number)
+        #Generate step files:
+        self.Generate_Step_files_for_layer(layer_number)
         #Creates INP of mesh called assembly.inp to be input in the main imp file:
         Create_Assembly_INP(layer_number)
         
@@ -159,9 +160,11 @@ def run(self, Generate_meshes = True, from_layer = 1, until_layer = "end"):
             f.write(text)
             f.close()
 
+            print("Runnin layer " + str(layer_number) + " with slurm...")
             os.system(f"sbatch -W Run_abaqus_slurm.sh")
 
         else:
+            print("Runnin layer " + str(layer_number) + "...")
             os.system(f"abaqus job={Job_name} cpus={self.input_file_dict['cpus']} interactive ask_delete=OFF")
 
     #change directory back to user directory

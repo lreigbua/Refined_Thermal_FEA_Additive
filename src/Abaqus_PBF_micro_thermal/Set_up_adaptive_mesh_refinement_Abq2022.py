@@ -485,6 +485,16 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
                         k=k+1
 
 
+    def generate_sets_for_BCs(self):
+
+        #Create set for bottom substrate surface:
+        bottom_surf_z = self.component_dimensions[2]
+        bot = bottom_surf_z - 0.00001
+        top = bottom_surf_z + 0.00001
+        mdb.models['main'].rootAssembly.Set(
+            nodes=mdb.models['main'].rootAssembly.instances['Substrate_out'].nodes.getByBoundingBox(-1e6,-1e6,bot,1e6,1e6,top),
+            name='subst_bottom_surface'
+            )
 
 
 
@@ -498,6 +508,7 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         self.generate_tie_constraits()
         self.create_assembly_set_1()
         self.generate_sets_for_history_outputs()
+        self.generate_sets_for_BCs()
         self.create_job_and_write_inp()
 
 

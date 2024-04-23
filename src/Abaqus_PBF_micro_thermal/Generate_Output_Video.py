@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import json
 
-def Generate_Output_Video(self):
+def Generate_Output_Video(self, from_layer = 1, until_layer = "end"):
 
     print("Generating Output Video...")
 
@@ -19,15 +19,19 @@ def Generate_Output_Video(self):
     layer_thickness=dict_var_of_json['layer_thickness']
     component_dimensions=dict_var_of_json['component_dimensions']
 
-    n_layers=self.number_of_layers
+    
+
+    if until_layer=="end":
+        n_layers=round(component_dimensions[2]/layer_thickness)
+        until_layer=n_layers
 
 
-    os.system(f"abaqus cae noGUI={ str( self.module_path / f'Generate_animation_files_for_each_job.py -- {int(n_layers)}' ) }")  #Create Individual Videos
+    os.system(f"abaqus cae noGUI={ str( self.module_path / f'Generate_animation_files_for_each_job.py -- {from_layer} {until_layer}' ) }")  #Create Individual Videos
 
     #Concatenate Videos
     clips=[]
     # for i in range(1,int(n_layers)+1): #THIS IS THE CORRECT ONE
-    for i in range(1,int(n_layers)+1):
+    for i in range(from_layer,until_layer+1):
         clip = VideoFileClip( "Video_layer_{}.avi".format(i) ) #5 seconds video
         clips.append(clip)
 
