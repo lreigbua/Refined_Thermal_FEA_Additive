@@ -1,4 +1,4 @@
-# Process_Structure_FEA_SLM_w_refinemen
+# Process_Structure_FEA_SLM_w_refinement
 
 ![Image Alt text](images/laser_and_mesh.png)  <img src="/images/Temperature_histories_all_points.png" width="350">
 

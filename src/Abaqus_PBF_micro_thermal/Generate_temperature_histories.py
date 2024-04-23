@@ -48,7 +48,7 @@ def Generate_temperature_histories(self, temp_history_output_path = ""):
         if path.exists():
             if len(data) > 1:
                 data = np.loadtxt(path, delimiter=",")
-                plt.plot( data[:,0],data[:,1],label = f"Temperature_history_point_{point[0]}_{point[1]}_{point[2]}.png" )
+                plt.plot( data[:,0],data[:,1],label = f"Temperature_history_point_{point[0]}_{point[1]}_{point[2]}" )
 
                 plt.legend()
                 plt.savefig(self.Output_Path / f"Temperature_histories_all_points.png")
