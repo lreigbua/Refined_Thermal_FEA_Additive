@@ -1,6 +1,11 @@
 # Process_Structure_FEA_SLM_w_refinement
 
-![Image Alt text](images/laser_and_mesh.png)  <img src="/images/Temperature_histories_all_points.png" width="350">
+<img src="https://github.com/lreigbua/Process_Structure_FEA_SLM_w_refinement/assets/93150422/c12be3a9-2974-4319-aa18-f156adb31724" width="300" align="center">
+<img src="https://github.com/lreigbua/Process_Structure_FEA_SLM_w_refinement/assets/93150422/fc1ceabc-31f1-445b-ba11-ef01afd27e2b" width="500" align="center">
+
+![Supports_high_icnrement_layer_31](https://github.com/lreigbua/Process_Structure_FEA_SLM_w_refinement/assets/93150422/e1dc1768-931a-45fd-93ef-78fa8d7ffe4f)
+
+
 
 ## Introduction
 
