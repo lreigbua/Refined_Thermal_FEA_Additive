@@ -1,9 +1,8 @@
-# Process_Structure_FEA_SLM_w_refinement
+# Adaptive thermal FEA model of LPBF
 
 <img src="https://github.com/lreigbua/Process_Structure_FEA_SLM_w_refinement/assets/93150422/c12be3a9-2974-4319-aa18-f156adb31724" width="300" align="center">
 <img src="https://github.com/lreigbua/Process_Structure_FEA_SLM_w_refinement/assets/93150422/fc1ceabc-31f1-445b-ba11-ef01afd27e2b" width="500" align="center">
-
-![Supports_high_icnrement_layer_31](https://github.com/lreigbua/Process_Structure_FEA_SLM_w_refinement/assets/93150422/e1dc1768-931a-45fd-93ef-78fa8d7ffe4f)
+<img src="https://github.com/lreigbua/Process_Structure_FEA_SLM_w_refinement/assets/93150422/e1dc1768-931a-45fd-93ef-78fa8d7ffe4f" width="700" align="center">
 
 
 
@@ -12,19 +11,33 @@
 This code solves a thermal model of a powder bed fusion process in Abaqus. It uses layer-wise adaptive mesh refinement to speed up the simulation. It is still a computationally expensive simulation.
 It uses a high time resolution only in the layers specified, where temperature will be recorded as history outputs.
 
+## Layer-wise Adaptive Meshing
+
+The mesh is modified every time a layer is printed to keep a high resolution only near the layer being scanned. A steep change in element size is achieved through tie constraints.
+
+![Adaptive_Mesh](https://github.com/lreigbua/Process_Structure_FEA_SLM_w_refinement/assets/93150422/401ebba0-85db-4618-8f64-6ca9010424e8)
+
+## Adaptive time incrementations
+
+High resolution thermal histories are only calculated at points specified by the user. An imaginary sphere of interest is created around these points, and when the laser is scanning inside it the time incrementation is reduced. This speeds up the simulation significantly.
+
+![Adaptive_time](https://github.com/lreigbua/Process_Structure_FEA_SLM_w_refinement/assets/93150422/0d3b199f-417d-4e58-a81b-7d8556d441a7)
+
 ## Dependencies
 
-- Abaqus (tested on 2022 only)
+- Abaqus (tested on 2020 only)
 - Numpy
 - scikit-spatial
 
 Optional:
-- Pyslm with mtt translator for translating (https://github.com/drlukeparry/libSLM)
+- Pyslm with mtt translator for translating Rensishaw's mtt laser scanpath file (https://github.com/drlukeparry/libSLM)
 - moviepy to generate videos of simulation
 
 ## How to run
 
-Run main.m in src folder.
+```bash
+git clone
+```
 
 ## Configuration
 You need a cad file of your geometry that can be read by Abaqus CAE, which must be added to the input folder.
@@ -44,9 +57,6 @@ Post processing can take time
 - Generate_Video_of_Simulation.py puts the video of each layer together.
 - read_history_output.py reads the temperature history recorded in each layer of interest and saves them to text files.
 - plot_history_output.mlx can be used to plot the history outputs
-
-## Versions:
-- Currently tested on Abaqus 2022
 
 ## Known Issues:
 
