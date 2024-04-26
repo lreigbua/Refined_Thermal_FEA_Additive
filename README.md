@@ -31,11 +31,20 @@ Optional:
 - Pyslm with mtt translator for translating Rensishaw's mtt laser scanpath file (https://github.com/drlukeparry/libSLM)
 - moviepy to generate videos of simulation
 
-## How to run
+## How to run examples
 
 ```bash
-git clone
+# Download repository
+git clone https://github.com/lreigbua/Refined_Thermal_FEA_Additive.git
+
+#Go to example folder
+cd Refined_Thermal_FEA_Additive/examples/cube_1mm
+
+#Run python script
+python run_1mm_cube.py
 ```
+
+The output files are generated in an output folder in this directory. This will contain the Abaqus simulation files and post-processingoutputs.
 
 ## Configuration
 You need a cad file of your geometry that can be read by Abaqus CAE, which must be added to the input folder.
@@ -49,17 +58,7 @@ Options are set in input_file.json:
 
 ## Post-Processing
 
-Post processing can take time
-
-- Generate_animation_files_for_each_job.py creates a video of each layer. In order to correct the zoom you may need to modify this.
-- Generate_Video_of_Simulation.py puts the video of each layer together.
-- read_history_output.py reads the temperature history recorded in each layer of interest and saves them to text files.
-- plot_history_output.mlx can be used to plot the history outputs
-
-## Known Issues:
-
-- Component height needs to be a multiple of layer height.
-- Meshing works better if the domain can be a multiple of the highest element length.
+Post processing can take time, at the moment, videos of the simulation field outputs and temperature histories at the point of interest can be automatically generated. See examples.
 
 ## Disclaimer:
 
