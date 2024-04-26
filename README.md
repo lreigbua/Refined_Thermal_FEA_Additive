@@ -44,7 +44,7 @@ cd Refined_Thermal_FEA_Additive/examples/cube_1mm
 python run_1mm_cube.py
 ```
 
-The output files are generated in an output folder in this directory. This will contain the Abaqus simulation files and post-processingoutputs.
+The output files are generated in an output folder in this directory. This will contain the Abaqus simulation files and post-processing outputs.
 
 ## Configuration
 You need a cad file of your geometry that can be read by Abaqus CAE, which must be added to the input folder.
