@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This library solves a thermal model of a powder bed fusion process in Abaqus. It uses layer-wise adaptive mesh refinement to speed up the simulation. Since it is still a computationally expensive simulation,
+This library allows to solve thermal models of powder bed fusion processes in Abaqus. It uses layer-wise adaptive mesh refinement to speed up the simulation. Since it is still a computationally expensive simulation,
 it uses a high time resolution only in the layers specified, where temperature will be recorded as history outputs.
 
 <img src="https://github.com/lreigbua/Process_Structure_FEA_SLM_w_refinement/assets/93150422/c12be3a9-2974-4319-aa18-f156adb31724" width="300" align="center">
@@ -48,7 +48,7 @@ The output files are generated in an output folder in this directory. This will 
 
 ## Configuration
 You need a cad file of your geometry that can be read by Abaqus CAE, which must be added to the input folder.
-Options are set in input_file.json:
+Options are set in a json input file:
 
 - number_of_refinements -> How many times the mesh is refined from a characteristic length equal to the layer thickness upwards.
 - heights_of_interst -> At what height are the temperatures measured.
