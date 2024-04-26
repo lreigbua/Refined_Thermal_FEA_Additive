@@ -45,9 +45,21 @@ python run_1mm_cube.py
 
 The output files are generated in an output folder in this directory. This will contain the Abaqus simulation files and post-processing outputs.
 
-## Configuration
-You need a cad file of your geometry that can be read by Abaqus CAE, which must be added to the input folder.
-Options are set in a json input file:
+## Inputs
+The library is used by importing the module and creating an object with Refined_Thermal_FEA_Additive_class that reads an input json file.
+
+```python
+# import Simulation class
+from Refined_Thermal_FEA_Additive import Refined_Thermal_FEA_Additive_class
+
+#Create simulation object, which reads the input json file
+Simulation = Refined_Thermal_FEA_Additive_class("./inputs/1mm_cube.json")
+```
+
+The json file includes the configuration parameters of the simulation.
+Besides the json input file, a CAD model of the component to be simulated and a rensishaw's mtt file with the scanpath are needed, which must be specified in the json input file.
+
+Options in input json file:
 
 - number_of_refinements -> How many times the mesh is refined from a characteristic length equal to the layer thickness upwards.
 - heights_of_interst -> At what height are the temperatures measured.
