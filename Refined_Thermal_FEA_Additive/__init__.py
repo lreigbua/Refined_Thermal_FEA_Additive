@@ -3,7 +3,7 @@
 from .utils import *
 from pathlib import Path #library to handle paths
 
-class Abaqus_PBF_micro_thermal_class:
+class Refined_Thermal_FEA_Additive_class:
 #Class for running a single Abaqus thermal PBF simulation
 
     def __init__(self,input_file_path): #Path of input file
