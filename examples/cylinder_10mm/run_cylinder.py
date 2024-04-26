@@ -2,7 +2,7 @@ import sys
 # adding folder to system path to use from import
 sys.path.insert(0, '../../')
 # import Simulation class
-from Abaqus_PBF_micro_thermal import Abaqus_PBF_micro_thermal_class
+from Refined_Thermal_FEA_Additive import Abaqus_PBF_micro_thermal_class
 
 #Create simulation object, which reads the input json file
 Simulation = Abaqus_PBF_micro_thermal_class("./inputs/Cylinder_d10_thermocouple.json")

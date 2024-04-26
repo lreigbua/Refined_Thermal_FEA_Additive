@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0, '../../')
 
 # import Simulation class
-from Abaqus_PBF_micro_thermal import Abaqus_PBF_micro_thermal_class
+from Refined_Thermal_FEA_Additive import Abaqus_PBF_micro_thermal_class
 
 #Create simulation object
 Simulation = Abaqus_PBF_micro_thermal_class("./inputs/hourglass_thermocouple.json")
