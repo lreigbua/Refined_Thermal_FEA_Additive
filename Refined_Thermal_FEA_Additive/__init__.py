@@ -38,4 +38,3 @@ class Refined_Thermal_FEA_Additive_class:
     #methods for post-processing
     from .Generate_Output_Video import Generate_Output_Video
     from .Generate_temperature_histories import Generate_temperature_histories
-

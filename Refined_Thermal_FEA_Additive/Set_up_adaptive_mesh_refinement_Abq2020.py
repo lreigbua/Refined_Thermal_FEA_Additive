@@ -161,20 +161,22 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
                 self.slices_array[slice_key].height_bot = self.slices_array[slice_key].height_top-current_possible_slice_thickness
                 self.slices_array[slice_key].mesh_refinement = self.layer_thickness * 2**(n-1)
 
+            #decreases resolution if layer not of interest
             if n==0 or n==1 or n==2:
                 decrease_resolution_flag=True
-                for height in self.heights_of_interest:    #decreases resolution if layer not of interest
+                for height in self.heights_of_interest:    
 
                     height_top=closest_layer_height(height)
                     if self.current_height >= height_top-self.eps and abs(self.current_height - height_top + self.eps) <= self.radius_sphere_of_interest: #if layer is in the top half of sphere of interest
                         decrease_resolution_flag=False
                 
                 if decrease_resolution_flag:
-                    self.slices_array[slice_key].mesh_refinement*=3
+                    self.slices_array[slice_key].mesh_refinement*=4
 
+            #decreases resolution if layer not of interest
             if n==3:
                 decrease_resolution_flag=True
-                for height in self.heights_of_interest:    #decreases resolution if layer not of interest
+                for height in self.heights_of_interest:    
 
                     height_top=closest_layer_height(height)
                     if self.current_height >= height_top-self.eps and abs(self.current_height - height_top + self.eps) <= self.radius_sphere_of_interest: #if layer is in the top half of sphere of interest
