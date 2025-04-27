@@ -1,0 +1,50 @@
+**
+** ----------------------------------------------------------------
+** 
+** STEP: S-{0}
+** 
+*Step, name=S-{1},EXTRAPOLATION=NO, INC=100000000, UNSYMM=YES
+*Heat Transfer, end=PERIOD, deltmx=1000000.
+{2}, {3}, 0.000001, {4},
+**
+** BOUNDARY CONDITIONS
+** 
+** Name: Temp-BC-1 Type: Temperature
+{bottom_BC}*Boundary
+{bottom_BC}Set-subst_bot_surface, 11, 11, {self.input_file_dict["Chamber_Temperature"]}
+** 
+** LOADS
+** 
+** Name: Load-1   Type: Body heat flux
+*Dflux
+Set-1, MBFNU, ,"ABQ_AM.Moving Heat Source"
+** 
+** INTERACTIONS
+** 
+** Interaction: Int-1
+*Film
+Set-1, FFS, {self.input_file_dict["Chamber_Temperature"]}, 0.018
+** Interaction: Int-2
+*Radiate
+Set-1, RFS, {self.input_file_dict["Chamber_Temperature"]}, 0.25
+** 
+** OUTPUT REQUESTS
+** 
+*Restart, write, frequency=0
+**
+** FIELD OUTPUT: F-Output-2
+**
+*Output, field{5}
+*Element Output, directions=YES
+***SDV,
+**
+** FIELD OUTPUT: F-Output-1
+** 
+*Node Output
+NT
+{6}**
+{thermocouple_text} 
+*Activate elements, activation=ElementProgressiveActivation1, expansion time constant=2.
+"ABQ_AM.Material Input"
+*End Step
+    **
