@@ -435,10 +435,10 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
         
         mdb.jobs['layer-'+current_layer_number].writeInput()
 
-    def  create_element_HO_set_at(self,height,slice,n):
+    def  create_element_HO_set_at(self,point,slice,n):
     #Create element set for history outputs containing the middle element of each layer
 
-        height_c_top=height
+        height_c_top=point[2]
 
         #  The code below chooses a multiple of the layer thickness above and below the selected height and produces cuts in these planes
         while(round(height_c_top%self.layer_thickness,2)!=0):
@@ -446,36 +446,31 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
 
         height_c_top=round(height_c_top,2)
 
-        position=np.array([self.component_dimensions[0]/2,self.component_dimensions[1]/2,height_c_top])
-
-        # position=np.array([self.layer_thickness/2,self.layer_thickness/2,height_c_top])
-        
-
+        position=np.array([point[0],point[1],height_c_top])
+    
         #set bounding box positions of x and y
-        positionMax=position+slice.mesh_refinement*1.1
-        positionMin=position-slice.mesh_refinement*1.1
+        bounding_box_scale = 2.0
+        positionMax=position+slice.mesh_refinement*bounding_box_scale
+        positionMin=position-slice.mesh_refinement*bounding_box_scale
 
         #set bounding box positions of z
         positionMax[2]=height_c_top+slice.mesh_refinement+0.0000001
-        # positionMin[2]=height_c_top-slice.mesh_refinement-0.0000001
         positionMin[2]=height_c_top-slice.mesh_refinement*1.1-0.0000001
+  
+        lay_number=round(height_c_top/self.layer_thickness)
 
+        # print >> sys.__stdout__, height_c_top
+        # print >> sys.__stdout__, positionMax
+        # print >> sys.__stdout__, positionMin
+        
 
-        # print(slice.mesh_refinement)
-        # print(height_c_top)
-        # print(positionMax)
-        # print(positionMin)
-
-
-        # mdb.models['main'].rootAssembly.Set(elements=
-        #     mdb.models['main'].rootAssembly.instances['Slice-'+slice.ID+'-1'].elements.getByBoundingBox(0,0,0,2.55,2.55,1.04), name='Set-HO-layer-prevent-error')
-        #     # mdb.models['main'].rootAssembly.instances['COMP-1'].elements.getByBoundingBox(positionMin[0],positionMin[1],positionMin[2],positionMax[0],positionMax[1],positionMax[2]), name='Set-HO-layer-'+str(int(lay_number)))
-
-
-        lay_number=height_c_top/self.layer_thickness
         mdb.models['main'].rootAssembly.Set(elements=
             # mdb.models['main'].rootAssembly.instances['COMP-1'].elements.getByBoundingBox(2.45,2.45,0.94,2.55,2.55,1.04), name='Set-HO-layer-'+str(int(lay_number)))
             mdb.models['main'].rootAssembly.instances['Slice-'+slice.ID+'-1'].elements.getByBoundingBox(positionMin[0],positionMin[1],positionMin[2],positionMax[0],positionMax[1],positionMax[2]), name='Set-HO-layer-'+str(int(lay_number)))
+
+# mdb.models['main'].rootAssembly.Set(elements=
+#             # mdb.models['main'].rootAssembly.instances['COMP-1'].elements.getByBoundingBox(2.45,2.45,0.94,2.55,2.55,1.04), name='Set-HO-layer-'+str(int(lay_number)))
+#             mdb.models['main'].rootAssembly.instances['SLICE-'+'1'+'-1'].elements.getByBoundingBox(17.05,11.75,0.35,16.75,11.45,0.244), name='Set-HO-layer-'+str(6))
 
     def  create_node_HO_set_at(self,height,slice,n):
     #Create nodes set for history outputs containing the middle element of each layer
@@ -518,14 +513,15 @@ class Octree_mesh_generation: #this class performs octree mesh generation of a g
 
     def generate_sets_for_history_outputs(self):
         
-        for des_height in self.heights_of_interest:
+        for point in self.points_of_interest:
+            des_height = point[2]
 
             if self.current_height+0.0001>des_height:
 
                 k=1
                 for slice in self.slices_array:
                     if slice.height_top+0.0001>des_height-0.001 and slice.height_bot-0.0001< des_height-0.001:
-                        self.create_element_HO_set_at(des_height,slice,k)
+                        self.create_element_HO_set_at(point,slice,k)
                         # self.create_node_HO_set_at(des_height,slice,k)
                         k=k+1
         
@@ -685,10 +681,10 @@ while abs(Process.component_height + Process.layer_thickness - Process.current_h
     Process.run()
     Process.current_height=round(Process.current_height+Process.layer_thickness,2)
 
-#     # assert 1<0
 
-
+# # Run for a single layer
+# layer = 300
 # Process = Octree_mesh_generation() #for only one layer
-# Process.current_height=20*0.04
+# Process.current_height=layer*Process.layer_thickness
 # Process.run()
 

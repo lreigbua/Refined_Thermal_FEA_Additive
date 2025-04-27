@@ -160,7 +160,7 @@ def Calculate_intersection_times(self, layer_path, time, layer_height, point_of_
     first_coordinate = layer_path[1] #we start at 1 to skip dosing time coordinates
 
     if inSphere(first_coordinate, point_of_interest[:1], self.input_file_dict["radius_sphere_of_interest"]):
-        HrTFR.add_time_point(time[1])
+        HrTFR.add_time_point(self.input_file_dict["dosing_time"])
 
     #loop through the coordinates in the scanpath of this layer
     for c in range(1,len(layer_path)): #we start at 1 to skip dosing time coordinates
