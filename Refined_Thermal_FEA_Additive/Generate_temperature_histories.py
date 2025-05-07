@@ -58,7 +58,7 @@ def Generate_temperature_histories(self, temp_history_output_path = ""):
     if temp_history_output_path != "":
         for point in points_of_interest:
             path = self.Output_Path / f"Temperature_Element_at_heigt_{point[2]}.csv"
-            shutil.copy(path, temp_history_output_path / f"Temperature_Element_at_heigt_{point[2]}.csv")
+            shutil.copy(path, temp_history_output_path / f"Temperature_history_point_{point[0]}_{point[1]}_{point[2]}.csv")
 
     
     if self.input_file_dict["add_thermocouple"] == "yes":
