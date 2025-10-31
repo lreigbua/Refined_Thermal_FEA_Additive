@@ -20,7 +20,7 @@
 #SBATCH --ntasks=$$number_of_tasks --nodes=1
 #
 # Specify (hard) runtime (HH:MM:SS)
-#SBATCH --time=03:00:00
+#SBATCH --time=3:00:00
 #
 # Job name
 #SBATCH --job-name=abaqus_test
