@@ -9,6 +9,7 @@ data_build_1_rehatched/
 data_10mm_cube/
 src/Abaqus_PBF_micro_thermal/__pycache__/
 src/conda_initialise-3.9.sh
+src/Refined_Thermal_FEA_Additive.egg-info
 10mm_cube/
 Cylinder_corrected/
 Cylinder_thermocouple/
