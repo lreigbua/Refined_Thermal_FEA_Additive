@@ -37,11 +37,13 @@ Optional:
 ## How to run examples
 
 ```bash
-# Download repository
+# Download repository and build the library
 git clone https://github.com/lreigbua/Refined_Thermal_FEA_Additive.git
+cd Refined_Thermal_FEA_Additive
+pip install -e .
 
 #Go to example folder
-cd Refined_Thermal_FEA_Additive/examples/cube_1mm
+cd examples/cube_1mm
 
 #Run python script
 python run_1mm_cube.py
