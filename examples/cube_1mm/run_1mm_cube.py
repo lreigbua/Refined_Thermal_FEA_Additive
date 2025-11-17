@@ -1,9 +1,3 @@
-import sys
-
-# adding folder to system path to use from import
-sys.path.insert(0, '../../')
-
-# import Simulation class
 from Refined_Thermal_FEA_Additive import Refined_Thermal_FEA_Additive_class
 
 #Create simulation object, which reads the input json file

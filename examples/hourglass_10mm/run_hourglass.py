@@ -1,7 +1,4 @@
-import sys
-
-# adding folder to system path to use from import
-sys.path.insert(0, '../../')
+from Refined_Thermal_FEA_Additive import Refined_Thermal_FEA_Additive_class
 
 # import Simulation class
 from Refined_Thermal_FEA_Additive import Refined_Thermal_FEA_Additive_class
